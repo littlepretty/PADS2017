@@ -135,12 +135,16 @@ as shown in Figure~\ref{Fig:ExampleNetworkTopo}.
 Centralized SDN controller(not shown in the figure) installs the rules shown in
 Table~\ref{Tab:OriginalFlowTable} to each switch so that connection is established
 for three subnets.
-SW0 works as an \textbf{aggregate switch} to route traffic between different subnets.
+We assume the network has been in a stationary state, e.g. rules are already available
+on each OpenFlow switch and there is no dynamic events occur such as link down
+or rule modification.
+SW0 then works properly as an \textbf{aggregate switch} to route traffic
+between different subnets.
 SW1, SW2 and SW3 play as \textbf{edge switches} for three subnets respectively.
 In this very special case, there is only one host connected to each edge switch.
 
 Our approach abstracts the network composed of both aggregate switch and edge switches
-to one ``big switch" that have logically equivalent function.
+to one ``big switch" that has logically equivalent functions.
 The first step in the abstraction process is to extract \textit{equivalence classes}
 through the OpenFlow rules from any devices in the network.
 As defined in \cite{Veriflow}, equivalence class (EC) is the set of packets that
@@ -160,13 +164,19 @@ For example, the rules shown in Table~\ref{Tab:OriginalFlowTable} can be sliced 
 After identifying all the equivalence classes from the rule set,
 we generate \textit{forwarding graph} which models how packets within an EC will be
 forwarded through the network\cite{Veriflow}.
-The node represents EC at a network device;
+The node in a forwarding graph represents EC at a network device;
 the directed edge represents how the network device forward the EC.
+The sink nodes (shown as red rectangle node) is not part of the forwarding graph
+but are drawn for recognizing which EC this forwarding graph belongs to.
+If we skip the process of minimizing number of ECs from the rules,
+each equivalence class will have exactly one forwarding graph.
 Forwarding graph for all four ECs are shown separately in
 Figure~\ref{Fig:ExampleForwardingGraphs}.
 Notice that \{EC1, EC2, EC3, EC4\} is not the minimal set of ECs in the network.
 In fact, EC1 and EC3 can be merged together because packets in both classes are forwarded
 identically at any network device.
+This is shown in Figure~\ref{Fig:ExampleForwardingEC13} as EC1 and EC3 share the same
+forwarding graph.
 
 We finish the abstraction by generating a new set of forwarding rules that are to be
 installed on the ``big switch".
@@ -194,11 +204,11 @@ SW in Figure~\ref{Fig:ExampleBigSwitch}.
 The resulting one-switch network functions identical to the tree-topology network,
 in the eyes of the three hosts(possibly emulated or simulated).
 In contrast, the number of switches we need to emulate is reduced from four to one;
-the number of rules in the network is reduced from twelve to four.
+more importantly, the number of rules in the network is reduced from twelve to four.
 If we confine the rules to these that (1) only match NW\_DST field;
 (2) only have forwarding actions,
 the total number of rules will be proportional to the number of ECs in the
-``big switch", comparing to $O(S\times P)$ in the original SDN network,
-where $S$ is the number of switches and $P$ is the number of address prefixes.
+original SDN network, comparing to $O(S\times P)$ where $S$ is the number of switches
+and $P$ is the number of address prefixes.
 
 
