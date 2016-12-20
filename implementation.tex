@@ -1,9 +1,127 @@
 \section{Design and Implementation}
 
-\subsection{Finding Minimal Equivalence Class Set}
+We have sketched the process of how to replace a OpenFlow-switch-connected network
+with a single OpenFlow switch in section~\ref{Sec:MotivationalExample}.
+In this section, we elaborate the implementational details and relevant algorithms
+in each step.
+
+\subsection{Finding Minimal Set of ECs}
+
+\begin{definition}
+Equivalence Class (EC) is the set of packets that
+experience identical forwarding action at \textbf{any} network device.
+\end{definition}
+
+By aggregating and slicing forwarding rules in a SDN network to ECs,
+one can obtain a compact representation of all the classes of network flows.
+Inspired by VeriFlow\cite{Veriflow}, we compute ECs by maintaining a trie
+which is a composition of several sub-tries, each representing one header field.
+In the tree-topology network, for example, the trie is just a sub-trie that
+corresponds to the network destination address in both packet header and rule match field.
+
+\subsubsection{Disjoint EC as Disjoint Intervals}
+By traversing from root node to a leaf node, we obtain one set of packets
+that a rule matches.
+The set of all the root nodes thus contains all the rules in the network.
+However, these rules are not independent and cannot be used as EC set.
+Since each rule is an range of packet header values,
+the set of leaf-node rules are a list of ranges $R$ where $\forall r \in R$ can be
+described by a pair of starting header value and ending header value.
+Finding the set of disjoint ECs require us to splitting $R$ to
+a list of non-overlapping intervals.
+Not algorithmic described in\cite{Veriflow},
+we show this task can be accomplished in $O(N \times M\log M)$ time,
+where $M=|R|$ is the number of intervals and $N$ is the total number of header bits,
+as follows\cite{SplitDisjointInterval}.
+
+First we unzip $R$ into an array $A$ of $2M$ values,
+each flagged as either a start $S$ or an end $E$ of a range.
+\footnote{Equal values with same flag are reduced to an single element.}
+Before iterating $A$, we sort it, breaking the tie by putting $S$ point before $E$ point.
+Then we maintain the difference $d$ between the number of $S$ points and the number of $E$ points
+seen so far, while visit each point in sorted order:
+\begin{itemize}
+\item If current element $x$ is $S$
+        \begin{itemize}
+                \item If $d > 0$, we end the previous interval with ending value $x - 1$
+                        and start a new interval with starting value $x$
+                \item If $d = 0$, we start a new interval with starting value $x$
+        \end{itemize}
+\item If current element $x$ is $E$, we end the previous interval with ending value $x$.
+        If the next element is also a $E$ point, we start a new interval with starting value
+        $x + 1$.
+\end{itemize}
+
+Updating forwarding rules in the network will result in the change of EC set.
+By maintaining the rules in a trie, we can efficiently update ECs incrementally.
+Inserting new rule to the trie require us to do a depth-first-style traverse.
+This process automatically narrows down the affected rules by ignore the branches
+that is impossible to overlap with the new rule.
+The result of the procedure is the set of the effected ranges, instead of all the
+ranges in the network.
+Therefore we only need to run Algorithm~\ref{Alg:GenDisjointECs} on this small set of ranges.
+
+
+\subsubsection{Minimal EC Set}
+The resulting disjoint EC set $ECS$ obtained from Algorithm~\ref{Alg:GenDisjointECs} are unfortunately not the optimal one with minimum size.
+Many ECs can be merged together.
+For example, EC1 and EC3 in section~\ref{Sec:MotivationalExample} can be seen as one EC.
+By the definition of EC, since $\forall d$ takes identical forwarding action for any one of
+the mergeable ECs, we have:
+\begin{lemma}
+A set of mergeable disjoint ECs has the same forwarding graph.
+\label{Lemma:MergeFG}
+\end{lemma}
+Thus, operating on the minimal EC set can reduce running time in the later phase of
+generating forwarding graph as well as populating final OpenFlow rules.
+Here we provide a solution with, interestingly, a trie again.
+
+Our solution builds on the following Lemma.
+\begin{lemma}
+A pair of disjoint ECs in $ECS$ is mergeable if they intersect with the
+same set of rules in the network.
+\label{Lemma:MergeEC}
+\end{lemma}
+The proof of Lemma~\ref{Lemma:MergeEC} is as follows.
+Let $\alpha$ and $\beta$ be two ECs that intersect with the same set of rules $\Delta$.
+At $\forall$ network device $d$, let $\delta \in \Delta$ be the rule on $d$ with
+highest priority.
+If no such $\delta$ exist, packets from both $\alpha$ and $\beta$ are dropped on $d$.
+Otherwise, device $d$ will forward packets from both $\alpha$ and $\beta$ according to the same
+rule $\delta$.
+By the definition of EC, packets in $\alpha$ and $\beta$ can be merged as one single EC
+since at any network switch they have identical forwarding action.
+
+Assume each EC $\alpha$ have been associated with the list of rules $\Delta_\alpha$,
+which in essential are a list of ranges, that intersects with it.
+By convert each rule to an unique integer ID, we can sort $\Delta_\alpha$
+for every $\alpha$ in the EC set.
+Then we build a trie that associate rules with the set of ECs that intersect with them.
+In other words, the leaf of this trie stores all the mergeable ECs.
+
+Finding the list of rules $\Delta_\alpha$ that intersects with EC $\alpha$ can be done
+efficiently with two data structure,
+each taking care one of the two cases\cite{FindIntersectionWiki}:
+\begin{itemize}
+\item Rule $\delta$ intersects $\alpha$ with its start and/or end point in $\alpha$.
+        Here we can reuse the sorted array $A$ in Algorithm~\ref{Alg:GenDisjointECs}.
+        By doing binary search, we can find the minimum and maximum value in $A$ that
+        are in the range of $\alpha$. All intervals that intersect with $\alpha$ must be
+        contained between the minima and maxima. We can then linearly search
+        in this reduced list of ranges. The total time complexity for both linear and binary
+        search is thus $O(\log M + K)$,
+        assuming $K=|\Delta|$ is the number of reported intervals.
+\item Rule $\delta$ covers $\alpha$ entirely. We can build
+        a central interval tree\cite{ComputationalGeometryBook} using all available ranges.
+        We pick a random value $x \in \alpha$ and query the central interval tree for
+        all ranges that intersect with $x$, which can be done in $O(\log M + K)$ time.
+\end{itemize}
+
 
 \subsection{Generating Forwarding Graphs}
 
 \subsection{Populating Flow Table on Big Switch}
+
+
 
 

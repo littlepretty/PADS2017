@@ -1,4 +1,5 @@
 \section{Motivational Example}
+\label{Sec:MotivationalExample}
 
 \tikzset {
         roundnode/.style={circle, draw=blue!80, fill=blue!5, very thick, minimum size=7mm},
@@ -89,21 +90,21 @@
 Switch & Priority & Match Field & Action\\
 \hline
 \hline
-\multirow{3}{2em}{SW0} & 10 & NW\_DST=10.1.*.* & FWD OUT\_PORT=0 \\
-                       & 1  & NW\_DST=10.*.*.* & FWD OUT\_PORT=1 \\
-                       & 1  & NW\_DST=11.1.*.* & FWD OUT\_PORT=2 \\
+\multirow{3}{2em}{SW0} & 10 & NW\_DST=10.1.*.* & FWD: OUT\_PORT=0 \\
+                       & 1  & NW\_DST=10.*.*.* & FWD: OUT\_PORT=1 \\
+                       & 1  & NW\_DST=11.1.*.* & FWD: OUT\_PORT=2 \\
 \hline
-\multirow{3}{2em}{SW1} & 10 & IN\_PORT=1, NW\_DST=10.1.*.* & FWD OUT\_PORT=0 \\
-                       & 1  & IN\_PORT=0, NW\_DST=10.*.*.* & FWD OUT\_PORT=1 \\
-                       & 1  & IN\_PORT=0, NW\_DST=11.1.*.* & FWD OUT\_PORT=1 \\
+\multirow{3}{2em}{SW1} & 10 & IN\_PORT=1, NW\_DST=10.1.*.* & FWD: OUT\_PORT=0 \\
+                       & 1  & IN\_PORT=0, NW\_DST=10.*.*.* & FWD: OUT\_PORT=1 \\
+                       & 1  & IN\_PORT=0, NW\_DST=11.1.*.* & FWD: OUT\_PORT=1 \\
 \hline
-\multirow{3}{2em}{SW2} & 10 & IN\_PORT=0, NW\_DST=10.1.*.* & FWD OUT\_PORT=1 \\
-                       & 1  & IN\_PORT=1, NW\_DST=10.*.*.* & FWD OUT\_PORT=0 \\
-                       & 1  & IN\_PORT=0, NW\_DST=11.1.*.* & FWD OUT\_PORT=1 \\
+\multirow{3}{2em}{SW2} & 10 & IN\_PORT=0, NW\_DST=10.1.*.* & FWD: OUT\_PORT=1 \\
+                       & 1  & IN\_PORT=1, NW\_DST=10.*.*.* & FWD: OUT\_PORT=0 \\
+                       & 1  & IN\_PORT=0, NW\_DST=11.1.*.* & FWD: OUT\_PORT=1 \\
 \hline
-\multirow{3}{2em}{SW3} & 10 & IN\_PORT=1, NW\_DST=11.1.*.* & FWD OUT\_PORT=0 \\
-                       & 1  & IN\_PORT=0, NW\_DST=10.*.*.* & FWD OUT\_PORT=1 \\
-                       & 1  & IN\_PORT=0, NW\_DST=10.1.*.* & FWD OUT\_PORT=1 \\
+\multirow{3}{2em}{SW3} & 10 & IN\_PORT=1, NW\_DST=11.1.*.* & FWD: OUT\_PORT=0 \\
+                       & 1  & IN\_PORT=0, NW\_DST=10.*.*.* & FWD: OUT\_PORT=1 \\
+                       & 1  & IN\_PORT=0, NW\_DST=10.1.*.* & FWD: OUT\_PORT=1 \\
 \hline
 \end{tabular}
 \end{center}
@@ -152,14 +153,16 @@ experience identical forwarding action at \textbf{any} network device.
 This concept is proposed to confine network verification activities to the minimal
 effected set of packets\cite{Veriflow}.
 In our approach, we utilize EC to merge all the rules on a set of switches.
-For example, the rules shown in Table~\ref{Tab:OriginalFlowTable} can be sliced into
-4 \textbf{disjoint} ECs.
+For example, the flow rules shown in Table~\ref{Tab:OriginalFlowTable} can be sliced into
+4 \textbf{disjoint} ECs based on the NW\_DST match field:
 \begin{itemize}
 \item Packets in EC1 is destined to network address 10.0.*.*.
 \item Packets in EC2 is going to hosts with address 10.1.*.*.
 \item Packets going to the address range from 10.2.0.0 to 10.255.255.255 belongs to EC3
 \item Packets in EC4 goes to subnet 11.1.*.*. 
 \end{itemize}
+One thing to notice is that match field IN\_PORT cannot be used in identifying ECs,
+since it is not packet-dependent but topology-dependent filed.
 
 After identifying all the equivalence classes from the rule set,
 we generate \textit{forwarding graph} which models how packets within an EC will be
