@@ -5,7 +5,7 @@
 
 % State our idea
 Inspired by works of~\cite{OneBigSwitchAbstraction, Veriflow},
-we propose to abstract any subset of the SDN network switches as \textbf{``one big switch"}.
+we propose to abstract any subset of the networked SDN switches as \textbf{``one big switch"}.
 In the very extreme case, the entire set of the SDN switches are compressed to
 one OpenFlow switch.
 The obvious benefit is the much less required simulating or emulating resources,
@@ -22,14 +22,14 @@ The big switch must preserve \textbf{packet-level fidelity} so that
 it can be used with confidence in simulation or emulation.
 More concretely, we need to abstract the SDN network under two constraints:
 \begin{itemize}
-\item \textbf{Logical equivalence.} The forwarding behavior of any packet must be identical
+\item \textbf{Logical Equivalence.} The forwarding behavior of any packet must be identical
         between both representations of the real network. Packets being
         forwarded through out the network (1) will also be forwarded through out
         some interface of the big switch, (2) any modifications made by
         intermediate switches must be made by the big switch in proper order.
         Packets being dropped at some point in the network path will be drop by the
         big switch.
-\item \textbf{Performance equivalence.} A packet transmitted through a series of
+\item \textbf{Performance Equivalence.} A packet transmitted through a series of
         switches can be seen as processed by multiple queueing systems $\mathcal{Q}$.
         Similarly, the packet processing performance model in a big OpenFlow switch can
         also be modeled as a queueing system $Q$.

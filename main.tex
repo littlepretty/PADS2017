@@ -61,8 +61,16 @@
 \usepackage{epigraph}
 
 % *** ALGORITHM ***
-\usepackage{algorithm}
-\usepackage{algpseudocode}
+%\usepackage{algorithm}
+%\usepackage{algpseudocode}
+\usepackage[ruled, linesnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{ALGORITHM}
+\SetAlFnt{\small}
+\SetAlCapFnt{\small}
+\SetAlCapNameFnt{\small}
+\SetAlCapHSkip{0pt}
+\IncMargin{-\parindent}
+
 \usepackage{booktabs}
 \usepackage{enumitem}
 
@@ -266,8 +274,8 @@ To do
 \keywords{Network Emulation; Software-Defined Networking;}
 
 \input{intro}
-\input{motivation}
-\input{implementation}
+\input{example}
+\input{design}
 \input{evaluation}
 \input{conclusion}
 \input{acknowledgments}

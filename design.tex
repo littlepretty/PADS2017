@@ -1,9 +1,9 @@
-\section{Design and Implementation}
+\section{Design of BigSim}
 
 We have sketched the process of how to replace a OpenFlow-switch-connected network
 with a single OpenFlow switch in section~\ref{Sec:MotivationalExample}.
-In this section, we elaborate the implementational details and relevant algorithms
-in each step.
+In this section, we elaborate the details and relevant algorithms
+in each procedure.
 
 \subsection{Finding Minimal Set of ECs}
 
@@ -27,7 +27,7 @@ However, these rules are not independent and cannot be used as EC set.
 Since each rule is an range of packet header values,
 the set of leaf-node rules are a list of ranges $R$ where $\forall r \in R$ can be
 described by a pair of starting header value and ending header value.
-Finding the set of disjoint ECs require us to splitting $R$ to
+Finding the set of disjoint ECs requires us to splitting $R$ to
 a list of non-overlapping intervals.
 Not algorithmic described in\cite{Veriflow},
 we show this task can be accomplished in $O(N \times M\log M)$ time,
@@ -61,6 +61,30 @@ The result of the procedure is the set of the effected ranges, instead of all th
 ranges in the network.
 Therefore we only need to run Algorithm~\ref{Alg:GenDisjointECs} on this small set of ranges.
 
+\begin{algorithm}[h]
+\DontPrintSemicolon
+\KwData{$R = $ set of rules from the leaf-node of the trie}
+\KwResult{$EC = $ set of equivalence classes as disjoint intervals}
+$cnt \gets 0$\;
+$S = $ \{start points of $\forall r \in R\}$, $E = $ \{end points of $\forall r \in R\}$\;
+$A \gets Sort(S \bigcup E)$ in non-decreasing order\;
+$EC \gets \emptyset$\;
+\ForEach {$x \in A$} {
+        \uIf {$x \in S$} {
+                \If {$cnt \neq 0$} {
+                        $EC \gets EC \bigcup [prev, x-1]$\;
+                }
+                $prev \gets x$\;
+                $cnt \gets cnt + 1$\;
+        }
+        \Else ($x \in E$) {
+                $EC \gets EC \bigcup [prev, x]$\;
+                $prev \gets x + 1$\;
+                $cnt \gets cnt - 1$\;
+        }
+}
+\caption{Generate Disjoint ECs\label{Alg:GenDisjointECs}}
+\end{algorithm}
 
 \subsubsection{Minimal EC Set}
 The resulting disjoint EC set $ECS$ obtained from Algorithm~\ref{Alg:GenDisjointECs} are unfortunately not the optimal one with minimum size.
@@ -92,30 +116,38 @@ rule $\delta$.
 By the definition of EC, packets in $\alpha$ and $\beta$ can be merged as one single EC
 since at any network switch they have identical forwarding action.
 
-Assume each EC $\alpha$ have been associated with the list of rules $\Delta_\alpha$,
-which in essential are a list of ranges, that intersects with it.
-By convert each rule to an unique integer ID, we can sort $\Delta_\alpha$
-for every $\alpha$ in the EC set.
-Then we build a trie that associate rules with the set of ECs that intersect with them.
-In other words, the leaf of this trie stores all the mergeable ECs.
-
-Finding the list of rules $\Delta_\alpha$ that intersects with EC $\alpha$ can be done
+Finding the list of rules $\Delta[\alpha]$ that intersects with EC $\alpha$ can be done
 efficiently with two data structure,
 each taking care one of the two cases\cite{FindIntersectionWiki}:
 \begin{itemize}
 \item Rule $\delta$ intersects $\alpha$ with its start and/or end point in $\alpha$.
-        Here we can reuse the sorted array $A$ in Algorithm~\ref{Alg:GenDisjointECs}.
+        We can reuse the sorted array $A$ in Algorithm~\ref{Alg:GenDisjointECs}.
+        Here we assume we augmented each value in $A$ with a pointer that points to
+        the rule it belongs to.
         By doing binary search, we can find the minimum and maximum value in $A$ that
-        are in the range of $\alpha$. All intervals that intersect with $\alpha$ must be
-        contained between the minima and maxima. We can then linearly search
-        in this reduced list of ranges. The total time complexity for both linear and binary
-        search is thus $O(\log M + K)$,
+        are in the range of $\alpha$.
+        All intervals that intersect with $\alpha$ must be contained between
+        the minima and maxima.
+        We can then do linear search in this reduced list of ranges $A'$,
+        check one by one if the interval that value $a\in A'$ belongs to
+        intersects with $\alpha$.
+        The total time complexity for both linear and binary search is thus $O(\log M + K)$,
         assuming $K=|\Delta|$ is the number of reported intervals.
 \item Rule $\delta$ covers $\alpha$ entirely. We can build
         a central interval tree\cite{ComputationalGeometryBook} using all available ranges.
         We pick a random value $x \in \alpha$ and query the central interval tree for
-        all ranges that intersect with $x$, which can be done in $O(\log M + K)$ time.
+        all ranges that intersect with $x$, which can be done in $O(\log M + K)$ time,
+        at the cost of $O(M log M)$ time for building the central interval tree.
+        
 \end{itemize}
+
+For each EC $\alpha$ we have found the list of intervals $\Delta[\alpha]$
+that intersects with it with both interval tree and ordered list of boundary values.
+By mapping each rule to an unique binary ID of length $\log_2 M$,
+we can encode $\Delta[\alpha]$ to a string of at most length $M\log_2 M$, putting
+small binary IDs before large ones.
+Then we use a hash table $H$ to group ECs with its encoded $\Delta[\cdot]$ as key.
+The minimal size of ECs is thus the number of unique keys in $H$.
 
 
 \subsection{Generating Forwarding Graphs}
