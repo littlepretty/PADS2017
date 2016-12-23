@@ -7,25 +7,26 @@ in each procedure.
 
 \subsection{Finding Minimal Set of ECs}
 
+By aggregating and slicing forwarding rules in a SDN network to ECs,
+one can obtain a compact representation of all the classes of network flows.
 \begin{definition}
 Equivalence Class (EC) is the set of packets that
 experience identical forwarding action at \textbf{any} network device.
 \end{definition}
+Inspired by VeriFlow\cite{Veriflow}, we aggregate forwarding rules using a trie
+compositing by several sub-tries, each representing one header field.
+In the tree-topology network, for example, the trie is just a single sub-trie that
+corresponds to the packet header (network-layer destination address)
+part of the rule match field.
 
-By aggregating and slicing forwarding rules in a SDN network to ECs,
-one can obtain a compact representation of all the classes of network flows.
-Inspired by VeriFlow\cite{Veriflow}, we compute ECs by maintaining a trie
-which is a composition of several sub-tries, each representing one header field.
-In the tree-topology network, for example, the trie is just a sub-trie that
-corresponds to the network destination address in both packet header and rule match field.
 
 \subsubsection{Disjoint EC as Disjoint Intervals}
-By traversing from root node to a leaf node, we obtain one set of packets
+By traversing from root node to a leaf node, we can obtain one set of packets
 that a rule matches.
-The set of all the root nodes thus contains all the rules in the network.
-However, these rules are not independent and cannot be used as EC set.
-Since each rule is an range of packet header values,
-the set of leaf-node rules are a list of ranges $R$ where $\forall r \in R$ can be
+All the leaves thus contains all the rules in the network.
+However, these rules are not independent and may overlapping with each other.
+In essential, each rule is an range of packet header values;
+the set of rules are thus a list of ranges $R$ where $\forall r \in R$ can be
 described by a pair of starting header value and ending header value.
 Finding the set of disjoint ECs requires us to splitting $R$ to
 a list of non-overlapping intervals.
@@ -53,13 +54,12 @@ seen so far, while visit each point in sorted order:
 \end{itemize}
 
 Updating forwarding rules in the network will result in the change of EC set.
-By maintaining the rules in a trie, we can efficiently update ECs incrementally.
-Inserting new rule to the trie require us to do a depth-first-style traverse.
+By maintaining the rules in a trie, we can efficiently update ECs incrementally as follows.
+Inserting new rule to the trie require us to do a depth-first-style trie traverse.
 This process automatically narrows down the affected rules by ignore the branches
-that is impossible to overlap with the new rule.
-The result of the procedure is the set of the effected ranges, instead of all the
-ranges in the network.
-Therefore we only need to run Algorithm~\ref{Alg:GenDisjointECs} on this small set of ranges.
+that is impossible to overlap with the newly inserted rule.
+The result of the procedure is the set of the effected ranges.
+We only need to run Algorithm~\ref{Alg:GenDisjointECs} to update ECs in the effected ranges.
 
 \begin{algorithm}[h]
 \DontPrintSemicolon
@@ -98,12 +98,11 @@ A set of mergeable disjoint ECs has the same forwarding graph.
 \end{lemma}
 Thus, operating on the minimal EC set can reduce running time in the later phase of
 generating forwarding graph as well as populating final OpenFlow rules.
-Here we provide a solution with, interestingly, a trie again.
-
+Here we provide a solution with its proof.
 Our solution builds on the following Lemma.
 \begin{lemma}
-A pair of disjoint ECs in $ECS$ is mergeable if they intersect with the
-same set of rules in the network.
+A pair of disjoint ECs in $ECS$ is mergeable if they intersect with
+the same set of rules in the network.
 \label{Lemma:MergeEC}
 \end{lemma}
 The proof of Lemma~\ref{Lemma:MergeEC} is as follows.
@@ -137,20 +136,53 @@ each taking care one of the two cases\cite{FindIntersectionWiki}:
         a central interval tree\cite{ComputationalGeometryBook} using all available ranges.
         We pick a random value $x \in \alpha$ and query the central interval tree for
         all ranges that intersect with $x$, which can be done in $O(\log M + K)$ time,
-        at the cost of $O(M log M)$ time for building the central interval tree.
-        
+        at the cost of $O(M log M)$ time for building the central interval tree. 
 \end{itemize}
 
 For each EC $\alpha$ we have found the list of intervals $\Delta[\alpha]$
 that intersects with it with both interval tree and ordered list of boundary values.
 By mapping each rule to an unique binary ID of length $\log_2 M$,
-we can encode $\Delta[\alpha]$ to a string of at most length $M\log_2 M$, putting
+we can encode $\Delta[\alpha]$ to a string $C_\alpha$ of at most length $M\log_2 M$, putting
 small binary IDs before large ones.
-Then we use a hash table $H$ to group ECs with its encoded $\Delta[\cdot]$ as key.
-The minimal size of ECs is thus the number of unique keys in $H$.
+Then we use a hash table $H$ to group mergeable ECs by hashing each EC $x$ to $C_x$.
+The minimal size of ECs is the number of unique keys in $H$.
+In the later text, when we say ``iterate through all (disjoint) ECs" or "for each EC" etc,
+we are actually visiting the first ECs in each set $H[key]$, $\forall key \in H$.
 
 
 \subsection{Generating Forwarding Graphs}
+In the second stage, we compute forwarding graphs for each EC and compress them to be used in
+the next stage.
+Considering a fixed EC $x$, we can connect the network devices that have rules for $x$
+with directed edges that point to the next hop, which is available in the rule action field.
+This forwarding graph $FG(x)$ efficiently concatenates the forwarding actions for each EC
+in the network.
+Since our goal is to compress the network logic, we are more interested in the sources
+and sinks of the directed graph.
+We define \textbf{Edge switches} are these switches whose port will be remapped to the port on
+the resulting big switch;
+in contrast, \textbf{internal switches} are abstracted away in the final big switch.
+Both of them are corresponding to ports on the edge switches.
+Therefore forwarding graphs can be generated by starting from any edge switch and traversing
+by following the action of the rule determined by EC $x$.
+
+We depict the generalized forwarding graph $FG(x)$ for EC $x$
+in Figure~\ref{Fig:SummaryForwardingGraph}.
+We make all the edge switches to be both the possible
+(if there is a link to/from the inner graph) source and sink nodes.
+The inner graph between sink and source may contain both edge and internal switches.
+We consider three kind of ``path" in $FG(x)$:
+\begin{itemize}
+\item \textbf{Forwarding Path}. The path leads to the outside of the graph, e.g.
+        another edge switch's port to host.
+        This is a normal forwarding path for one kind of packets.
+\item \textbf{Dropped in the Middle}. The path ends inside the graph. The packet defined
+        by EC $x$ are dropped in some intermediate switch in the network.
+\item \textbf{Loop}. There is a directed cycle in the graph. This behavior can be
+        emulated in the semantic of \textbf{performance equivalence}, but not by
+        \textbf{logical equivalence} studied in this paper.
+\end{itemize}
+
 
 \subsection{Populating Flow Table on Big Switch}
 
