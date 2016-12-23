@@ -8,7 +8,7 @@ ifeq ($(UNAME),Linux)
 	VIEWER=xdg-open
 endif
 ifeq ($(UNAME), Darwin)
-	VIEWER=open
+	VIEWER=open -a Preview
 endif
 
 FILE_NAME=main
