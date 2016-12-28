@@ -1,50 +1,3 @@
-% This is "sig-alternate.tex" V2.1 April 2013
-% This file should be compiled with V2.5 of "sig-alternate.cls" May 2012
-%
-% This example file demonstrates the use of the 'sig-alternate.cls'
-% V2.5 LaTeX2e document class file. It is for those submitting
-% articles to ACM Conference Proceedings WHO DO NOT WISH TO
-% STRICTLY ADHERE TO THE SIGS (PUBS-BOARD-ENDORSED) STYLE.
-% The 'sig-alternate.cls' file will produce a similar-looking,
-% albeit, 'tighter' paper resulting in, invariably, fewer pages.
-%
-% ----------------------------------------------------------------------------------------------------------------
-% This .tex file (and associated .cls V2.5) produces:
-%       1) The Permission Statement
-%       2) The Conference (location) Info information
-%       3) The Copyright Line with ACM data
-%       4) NO page numbers
-%
-% as against the acm_proc_article-sp.cls file which
-% DOES NOT produce 1) thru' 3) above.
-%
-% Using 'sig-alternate.cls' you have control, however, from within
-% the source .tex file, over both the CopyrightYear
-% (defaulted to 200X) and the ACM Copyright Data
-% (defaulted to X-XXXXX-XX-X/XX/XX).
-% e.g.
-% \CopyrightYear{2007} will cause 2007 to appear in the copyright line.
-% \crdata{0-12345-67-8/90/12} will cause 0-12345-67-8/90/12 to appear in the copyright line.
-%
-% ---------------------------------------------------------------------------------------------------------------
-% This .tex source is an example which *does* use
-% the .bib file (from which the .bbl file % is produced).
-% REMEMBER HOWEVER: After having produced the .bbl file,
-% and prior to final submission, you *NEED* to 'insert'
-% your .bbl file into your source .tex file so as to provide
-% ONE 'self-contained' source file.
-%
-% ================= IF YOU HAVE QUESTIONS =======================
-% Questions regarding the SIGS styles, SIGS policies and
-% procedures, Conferences etc. should be sent to
-% Adrienne Griscti (griscti@acm.org)
-%
-% Technical questions _only_ to
-% Gerald Murray (murray@hq.acm.org)
-% ===============================================================
-%
-% For tracking purposes - this is V2.0 - May 2012
-
 \documentclass{sig-alternate-05-2015}
 
 % *** CITATION PACKAGES ***
@@ -73,6 +26,7 @@
 
 \usepackage{booktabs}
 \usepackage{enumitem}
+\usepackage{float}
 
 % *** To balance reference page ***
 \usepackage{flushend}
@@ -219,7 +173,21 @@ Dong Jin\\
 
 \maketitle
 \begin{abstract}
-To do
+Software defined network abstracts the forwarding logic of the distributed networking
+system in order to make programming network devices to be centralized, simple and efficient.
+In this work we propose to leverage this paradigm in emulating large scale SDN network.
+Given a snapshot of the SDN powered network,
+we can cluster any number of OpenFlow devices into one virtualized switches
+that preserve packet-level fidelity,
+Our long term goal is to abstract the clustered portion of the SDN network so that
+emulating one OpenFlow switch is equivalent to a great number of interconnected
+OpenFlow switches in terms of both forwarding logics and network performance metrics.
+In this paper we focus on the logical part first and design systematic method and various
+algorithms to efficiently aggregate the distributed forwarding rules installed on a group
+of OpenFlow switches.
+Preliminary experiment results show that the rules on the abstracted ``big" switch
+can be compactly expressed without loss of forwarding correctness.
+Thus a large amount of emulating resources (rules and switches in the network) can be reduced via just the first logic abstraction stage.
 \end{abstract}
 
 
