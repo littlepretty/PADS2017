@@ -183,8 +183,15 @@ Notice that (1) source nodes in $FG(x)$ can only be edge switch,
 while it is possible that sink nodes are inner switches;
 (2) the inner graph between sink and source may contain both edge and internal switches.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[scale=.75]{figures/ForwardingGraph.pdf}
+\caption{An illustration of the $FG(x)$ forwarding graph for EC $x$}
+\label{Fig:ForwardingGraphECX}
+\end{figure*}
+
 We depict the generalized forwarding graph $FG(x)$ for EC $x$
-in Figure~\ref{Fig:SummaryForwardingGraph}.
+in Figure~\ref{Fig:ForwardingGraphECX}.
 We add a super-source node $SRC^x$and a super-sink node $SNK^x$, both represent the EC $x$.
 For convenience in discussion, we distinguish two kinds of port on \textbf{edge switch}es:
 \textit{end port} connects to endpoints or the outside of the network we are abstracting, while
