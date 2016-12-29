@@ -10,8 +10,8 @@
 We have sketched the process of how to replace a OpenFlow-switch-connected network
 with a single OpenFlow switch in section~\ref{Sec:MotivationalExample}.
 The overview architecture of our design is shown in Figure~\ref{Fig:BigSimOverview}.
-Taken a snapshot of SDN network as input, BigSim transform it to a single ``big"
-OpenFlow switch that preserve the forwarding logic of the original network.
+Taking a snapshot of SDN network $SN$ as input, BigSim transform it to a single ``big"
+OpenFlow switch $BS$ that preserve the forwarding logic of the original network.
 In this section, we elaborate the details and relevant algorithms
 in each procedure.
 
@@ -21,27 +21,30 @@ one can obtain a compact representation of all the classes of network flows.
 \begin{definition}
 Equivalence Class (EC) is the set of packets that
 experience identical forwarding action at \textbf{any} network device.
+\label{Def:EC}
 \end{definition}
-Inspired by VeriFlow\cite{Veriflow}, we aggregate forwarding rules using a trie
-compositing by several sub-tries, each representing one header field.
+Inspired by VeriFlow\cite{Veriflow}, we aggregate forwarding rules using a trie.
+A trie node have three child nodes, each representing one of the three possible
+bit values a rule can match: zero, one or wildcard.
+The entire tree is composited by several sub-tries,
+each representing one packet header field.
 In the tree-topology network, for example, the trie is just a single sub-trie that
-corresponds to the packet header (network-layer destination address)
-part of the rule match field.
-
+corresponds to the $NW_DST$ header field (network-layer destination address)
+of the rule match field.
+Here we give solutions to two problems that VeriFlow neglected.
 
 \subsubsection{Disjoint EC as Disjoint Intervals}
 By traversing from root node to a leaf node, we can obtain one set of packets
 that a rule matches.
-All the leaves thus contains all the rules in the network.
-However, these rules are not independent and may overlapping with each other.
-In essential, each rule is an range of packet header values;
-the set of rules are thus a list of ranges $R$ where $\forall r \in R$ can be
-described by a pair of starting header value and ending header value.
-Finding the set of disjoint ECs requires us to splitting $R$ to
-a list of non-overlapping intervals.
+All the leaves thus contains all the packet header values in the network,
+paired as a series of ranges, as $A, B$ and $C$ in Figure~\ref{Fig:DisjointECsAsInterval}.
+These header value ranges are not independent and may overlapping with each other.
+Finding the set of disjoint ECs requires us to splitting this list of ranges $R$ to
+a list of non-overlapping intervals,
+as the set of ECs shown at the top of Figure~\ref{Fig:DisjointECsAsInterval}.
 Not algorithmic described in\cite{Veriflow},
 we show this task can be accomplished in $O(N \times M\log M)$ time,
-where $M=|R|$ is the number of intervals and $N$ is the total number of header bits,
+where $M=|R|$ is the number of intervals and $N$ is the number of header bits,
 as follows\cite{SplitDisjointInterval}.
 
 First we unzip $R$ into an array $A$ of $2M$ values,
@@ -62,14 +65,24 @@ seen so far, while visit each point in sorted order:
 \end{itemize}
 
 Updating forwarding rules in the network will result in the change of EC set.
-By maintaining the rules in a trie, we can efficiently update ECs incrementally as follows.
+By maintaining the rules in a trie, we can efficiently update ECs
+incrementally as follows.
 Inserting new rule to the trie require us to do a depth-first-style trie traverse.
 This process automatically narrows down the affected rules by ignore the branches
 that is impossible to overlap with the newly inserted rule.
 The result of the procedure is the set of the effected ranges.
 We only need to run Algorithm~\ref{Alg:GenDisjointECs} to update ECs in the effected ranges.
 
-\begin{algorithm}[h]
+\begin{figure}[t]
+\centering
+\includegraphics[scale=.52]{figures/DisjointECs.pdf}
+\caption{A class of packets are abstracted as a range of packet header values.
+        Five equivalence classes can be obtained via splitting three ranges A, B and C.
+        The rules that intersect with each EC is also shown at the bottom.}
+\label{Fig:DisjointECsAsInterval}
+\end{figure}
+
+\begin{algorithm}[t]
 \DontPrintSemicolon
 \KwData{$R = $ set of rules from the leaf-node of the trie}
 \KwResult{$EC = $ set of equivalence classes as disjoint intervals}
@@ -97,31 +110,42 @@ $EC \gets \emptyset$\;
 \subsubsection{Minimal EC Set}
 The resulting disjoint EC set $ECS$ obtained from Algorithm~\ref{Alg:GenDisjointECs} are unfortunately not the optimal one with minimum size.
 Many ECs can be merged together.
-For example, EC1 and EC3 in section~\ref{Sec:MotivationalExample} can be seen as one EC.
-By the definition of EC, since $\forall d$ takes identical forwarding action for any one of
-the mergeable ECs, we have:
+For example, EC1 and EC3 in section~\ref{Sec:MotivationalExample} can be seen as one EC;
+$EC_2$ and $EC_4$ in Figure~\ref{Fig:DisjointECsAsInterval} can be merged as one EC.
+By the definition of EC, any fixed network device takes identical forwarding action
+for any one of the mergeable ECs, thus we have:
 \begin{lemma}
-A set of mergeable disjoint ECs has the same forwarding graph.
+$\forall \alpha, \beta \in$ the set of mergeable ECs, $FG(\alpha) \equiv FG(\beta)$.
 \label{Lemma:MergeFG}
 \end{lemma}
-Thus, operating on the minimal EC set can reduce running time in the later phase of
-generating forwarding graph as well as populating final OpenFlow rules.
+Lemma~\ref{Lemma:MergeFG} suggests that operating on the minimal EC set can
+reduce running time in the later phase of generating forwarding graph
+as well as populating final OpenFlow rules.
 Here we provide a solution with its proof.
-Our solution builds on the following Lemma.
+Our solution builds on the following lemma.
 \begin{lemma}
-A pair of disjoint ECs in $ECS$ is mergeable if they intersect with
-the same set of rules in the network.
+For any pair of disjoint ECs $\alpha$ and $\beta$, they are mergeable
+if they intersect with the same set of rules $\Delta$ in the network.
 \label{Lemma:MergeEC}
 \end{lemma}
-The proof of Lemma~\ref{Lemma:MergeEC} is as follows.
-Let $\alpha$ and $\beta$ be two ECs that intersect with the same set of rules $\Delta$.
-At $\forall$ network device $d$, let $\delta \in \Delta$ be the rule on $d$ with
-highest priority.
+According to Lemma~\ref{Lemma:MergeEC}, in Figure~\ref{Fig:DisjointECsAsInterval} for example,
+because both $EC_2$ and $EC_4$ intersect with range $B$ and $C$, we can treat them as one EC.
+
+The informal proof of Lemma~\ref{Lemma:MergeEC} is as follows.
+If EC $\alpha$ and EC $\beta$ satiesfis the condition in Lemma~\ref{Lemma:MergeEC},
+in Algorithm~\ref{Alg:GenDisjointECs}, $\alpha$ and $\beta$ come from
+the same set of rules.
+At any network device $d$ in the network, let $\delta \in \Delta$ be the rule on $d$ with
+\textbf{highest priority}.
 If no such $\delta$ exist, packets from both $\alpha$ and $\beta$ are dropped on $d$.
-Otherwise, device $d$ will forward packets from both $\alpha$ and $\beta$ according to the same
-rule $\delta$.
-By the definition of EC, packets in $\alpha$ and $\beta$ can be merged as one single EC
-since at any network switch they have identical forwarding action.
+Otherwise, packets of both $\alpha$ and $\beta$ will match rule $\delta$ and
+device $d$ will forward both of them according to the action specified in $\delta$.
+Notice that in another device $d'$, the highest priority rule that covers both $\alpha$
+and $\beta$ maybe different, e.g. $\delta' \neq \delta$.
+However, as long as $\delta$ is always unique at given $d$,
+it is sufficient to say the forwarding behavior at $d$ for both $\alpha$ and $\beta$ are identical.
+By Definition~\ref{Def:EC},
+packets in $\alpha$ and $\beta$ can be treated as one single EC.
 
 Finding the list of rules $\Delta[\alpha]$ that intersects with EC $\alpha$ can be done
 efficiently with two data structure,
@@ -165,16 +189,19 @@ Forwarding graph not only concatenates the forwarding actions of each EC,
 but also visualizes the flow the EC.
 For a fixed EC $x$, we connect the network devices that have rules for $x$
 with directed edges that point to the next hop,
-which is available in the action field of the rule.
+which is determined by the action field of the rule.
 Since our goal is to compress the network logic, we are more interested in the sources
 and sinks of the directed graph.
+Here we discuss two issues that specific to our problem: where to start the
+traversal according to our needs and what we can achieve at the end of the traversal.
 
-We define \textit{edge switches} as these switches whose port will be remapped to the port on
-the resulting big switch;
-in contrast, \textit{internal switches} are abstracted away in the final big switch.
-Forwarding graphs are generated by starting from each \textbf{edge switch} and traversing
-in the depth-first-search style by following the action of the highest-priority rule
-covering EC $x$.
+\subsubsection{Initiate Traversal}
+We depict the generalized forwarding graph $FG(x)$ for EC $x$
+in Figure~\ref{Fig:ForwardingGraphECX}.
+We define \textit{edge switches} as these that connect to network devices
+outside $SN$, either a host end or another switch.
+In contrast, \textit{internal switches} are these that entirely contained inside
+$SN$ and are abstracted away in the final big switch.
 Source node $src$ and its out-going edge represent an edge switch $sw$ that
 forwards EC $x$ \textbf{coming from} port $p$; it can be described by $(sw, p)$ pair.
 Sink node $snk$ represent the end of the forwarding $sw$,
@@ -183,7 +210,7 @@ specified by the action field or \texttt{NULL} if there is no rule for $x$ on $s
 %We denote the set of source nodes as $SRC(x)$, the set of sink nodes as $SNK(x)$.
 Notice that (1) source nodes in $FG(x)$ can only be edge switch,
 while it is possible that sink nodes are inner switches;
-(2) the inner graph between sink and source may contain both edge and internal switches.
+(2) the inner graph may contain both edge and internal switches.
 
 \begin{figure*}[t]
 \centering
@@ -192,30 +219,36 @@ while it is possible that sink nodes are inner switches;
 \label{Fig:ForwardingGraphECX}
 \end{figure*}
 
-We depict the generalized forwarding graph $FG(x)$ for EC $x$
-in Figure~\ref{Fig:ForwardingGraphECX}.
-We add a super-source node $SRC^x$and a super-sink node $SNK^x$, both represent the EC $x$.
+We add a super-source node $SRC^x$and a super-sink node $SNK^x$ as
+the boundaries of the graph $FG(x)$.
 For convenience in discussion, we distinguish two kinds of port on \textbf{edge switch}es:
-\textit{end port} connects to endpoints or the outside of the network we are abstracting, while
-\textit{inner port} connects to another network device inside the network we are abstracting.
+\begin{itemize}
+\item \textit{end port} connects to endpoints or the outside of the network we are abstracting
+\item \textit{inner port} connects to another network device inside the network we are abstracting.
+\end{itemize}
 We add an edge from $SRC^x$ to a source node(edge switch) $src$ if
 \begin{enumerate}
-\item the edge switch has a forwarding rule $r$ that covers EC $x$;
-\item the $IN\_PORT$ field of $r$ corresponds to an \textbf{end port} of the edge switch
+\item $src.sw$ has a forwarding rule $r$ that covers EC $x$;
+\item the $IN\_PORT$ field of rule $r$ on $src.sw$ is an \textbf{end port}.
 \end{enumerate}
 otherwise, we don't need to initiate traverse at all
-(see line~\ref{Alg:LineStartDFS1} to \ref{Alg:LineStartDFS2}
+(see line~\ref{Alg:LineStartDFS1} to~\ref{Alg:LineStartDFS2}
 in Algorithm~\ref{Alg:GenForwardingGraph}).
 Correspondingly, we add an edge from a sink node $snk$ to super sink $SNK^x$
 if both conditions are satisfied:
 \begin{enumerate}
-\item the sink node is representing an edge switch in the network;
-\item the $OUT\_PORT$ field determined by the rule's action on the edge switch is \textbf{end port}
+\item the $snk.sw$ is an edge switch in the network;
+\item the $OUT\_PORT$ field determined by the rule's action on $snk.sw$
+        is \textbf{end port}
 \end{enumerate}
+Forwarding graphs are generated by starting from source nodes that connected to $SRC^x$
+and traversing in the depth-first-search style by following the action of
+the highest-priority rule covering EC $x$.
 
-Using the depth-first-search algorithm shown in Algorithm~\ref{Alg:GenForwardingGraph},
-we can discover three kinds of ``path" in $FG(x)$ that related to rule generation on
-the big virtual switch:
+\subsubsection{At the Finishing of the Traversal}
+At the end of the depth-first-search algorithm shown in
+Algorithm~\ref{Alg:GenForwardingGraph}, we can discover three kinds of
+``path" in $FG(x)$ that related to rule generation on the big virtual switch:
 \begin{itemize}
 \item \textbf{Forwarding Path}(line~\ref{Alg:LineForwardPath1}-\ref{Alg:LineForwardPath2}).
         The path, starting from super source,
@@ -237,7 +270,7 @@ the big virtual switch:
         (3) adding a rule so that looping packets are dropped by big switch;
 \end{itemize}
 
-\begin{algorithm}[h]
+\begin{algorithm}[t]
 \DontPrintSemicolon
 \KwIn{$nodes = $ Switches that have rule for $x$ \newline
         Topology of the network $topo$}
@@ -277,10 +310,9 @@ the big virtual switch:
 
 
 \subsection{Populating Flow Table on Big Switch}
-
 Depending on the kind of path, we can easily generate OpenFlow rules on the abstracted
 big switch at the end of forwarding graph traversal by calling \texttt{generate\_rules},
-which is described in Algorithm~\ref{Alg:GenAllRules}.
+as described in Algorithm~\ref{Alg:GenAllRules}.
 We maintain a hash table $PortMap$ to map end ports on edge switches to the big virtual switch.
 This table is configured as rule generation using $global\_port$ variable.
 Algorithm~\ref{Alg:GenAllRules} fills the mandatory fields in an OpenFlow rule:
@@ -294,9 +326,7 @@ Algorithm~\ref{Alg:GenAllRules} fills the mandatory fields in an OpenFlow rule:
         (line~\ref{Alg:LineGenForwardRule1}-\ref{Alg:LineGenForwardRule2})
 \end{itemize}
 
-
-
-\begin{algorithm}[h]
+\begin{algorithm}[t]
 \DontPrintSemicolon
 \KwData{$PortMap$ maps $port$ on $sw$ $\rightarrow port$ on big switch\newline
         $global\_port$ assigned to unseen port number}
