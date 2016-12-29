@@ -3,13 +3,15 @@
 \begin{figure}[t]
 \centering
 \includegraphics[scale=.6]{figures/BigSimOverview.pdf}
-\caption{Overview of BigSim}
+\caption{BigSim transforms a SDN network (controller is not shown for simplicity) to a virtual OpenFlow switch without the loss of forwarding logic.}
 \label{Fig:BigSimOverview}
 \end{figure}
 
 We have sketched the process of how to replace a OpenFlow-switch-connected network
 with a single OpenFlow switch in section~\ref{Sec:MotivationalExample}.
-
+The overview architecture of our design is shown in Figure~\ref{Fig:BigSimOverview}.
+Taken a snapshot of SDN network as input, BigSim transform it to a single ``big"
+OpenFlow switch that preserve the forwarding logic of the original network.
 In this section, we elaborate the details and relevant algorithms
 in each procedure.
 
