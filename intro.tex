@@ -2,14 +2,29 @@
 
 % Bring in the issues that our approach can address
 % Describe them as problems in current simulation/emulation systems
+Software defined networking (SDN) explicitly separate the logic of the network
+from the distributed hardware that implementing the forwarding behaviors.
+This centralized scheme have been widely adopted in datacenters networks
+and internet exchange points\cite{B4, Meridian, SDX}.
+However, similar to traditional computer network systems, it is still crucial to do testing
+and evaluating before deployment.
+Consequently researchers in the simulation community have extend various
+traditional network simulators to provide SDN support\cite{S3F, NS3, OPNET}.
+Though network simulation is both reproducible and scalable,
+people are not always confident with its fidelity due to its idealized modelling process.
+In contrast, researcher in SDN community propose container-based emulation that utilize
+shared hardware resources and real network stack to run high-fidelity SDN experiments\cite{Mininet}.
+However, the experiment scale is limited to the resources available on the running machine.
 
 % State our idea
+In this work we propose to address the scalability issue by simplifying the emulated
+SDN network both logically and physically.
 Inspired by works of~\cite{OneBigSwitchAbstraction, Veriflow},
-we propose to abstract any subset of the networked SDN switches as \textbf{``one big switch"}.
+we abstract a subset of the networked SDN switches as \textbf{one} big switch.
 In the very extreme case, the entire set of the SDN switches are compressed to
 one OpenFlow switch.
 The obvious benefit is the much less required simulating or emulating resources,
-for example, switch processes and number of rules existing in the network.
+for example, number of switches and/or number of rules existing in the network.
 Besides, the abstracted big switch can be used in multiple plug-in-play scenarios.
 For example, researchers can reproduce the simulation result with very
 simple configurations (link connectivity setup, flow table configuration etc.)
