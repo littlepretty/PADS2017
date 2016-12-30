@@ -1,6 +1,6 @@
 \section{Design of BigSim}
 
-\begin{figure}[t]
+\begin{figure}[h]
 \centering
 \includegraphics[scale=.6]{figures/BigSimOverview.pdf}
 \caption{BigSim transforms a SDN network (controller is not shown for simplicity) to a virtual OpenFlow switch without the loss of forwarding logic.}
@@ -260,8 +260,7 @@ Algorithm~\ref{Alg:GenForwardingGraph}, we can discover three kinds of
         defined by EC $x$ are dropped, at least partially,
         in some intermediate switch in the network.
 \item \textbf{Forwarding Loop}(line~\ref{Alg:LineLoopPath}).
-        There is a directed cycle in the graph, which can be
-        detected during the depth-first-search traverse.
+        There is a directed cycle in the graph.
         This behavior can be emulated in the semantic of \textbf{performance equivalence},
         but not by \textbf{logical equivalence} studied in this paper.        
         For example, we can emulate a forwarding loop in the network by
