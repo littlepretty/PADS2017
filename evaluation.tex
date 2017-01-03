@@ -1,12 +1,39 @@
 \section{Evaluation}
+We show that given an interested SDN (sub)network with rules $SN(R)$, our approach can 
+(1) transform $SN(R)$ to a single OpenFlow switch without any loss of forwarding logic in network $SN(R)$;
+(2) save emulation resources such as number of total rules in the network and emulation runtime.
 
-\subsection{Experiment Scenario}
+In this section, we consider a tree topology with two topological parameters: depth $d$ and fanout $f$.
+Such a tree network $tree(d, f)$ can connect $f^d$ hosts with $\frac{f^d - 1}{f-1}$ switches in total.
+Though not known as a scalable network architecture
+(a good scalable alternative will be fat-tree topology),
+it is good for demonstrational purpose since the tree topology is well-structured and
+all hosts in it are potentially fully-connected with at most $2d$ hops.
+
+\subsection{Preserve Forwarding Logic}
+We generate forwarding logic in tree-topology network by connecting random host pairs.
+One can find the shortest path between a pair of hosts $(s, d)$ with
+a layer-two learning switch controller application.
+Traversing the tree up and down in breadth-first-search style, learning switch application
+will automatically install OpenFlow rules on each hop when we initiate \texttt{ping} between
+the given pair of host.
+More specifically, we start a tree-topology network in Mininet\cite{Mininet},
+connecting all switches to a l2\_learning\cite{pox} controller.
+For any network host $s$, we randomly generate a list of distinct hosts $dsts$,
+then let $s$ \texttt{ping} each host $\in dsts$.
+After doing the \texttt{ping} process for all hosts, we take a snapshot of this network by
+\begin{enumerate}
+\item Record the network topology, e.g. host to switch and switch to switch connections.
+\item Log out all rules on all switches with \texttt{ovs-ofctl dump-flows} command
+\end{enumerate}
+We feed the above information as input and generate the rules of the new big switch
+and port mapping according to procedures and algorithms presented in section~\ref{Sec:Design}.
+
+To proof that our approach can preserve the existing forwarding logic,
 
 
-\subsection{Experiment Results}
-
-\subsubsection{Preserve Forwarding Logic}
 
 
-\subsubsection{Resource Reduction}
+
+\subsection{Resource Reduction}
 
