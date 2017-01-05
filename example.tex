@@ -141,15 +141,16 @@ on each OpenFlow switch and there is no dynamic events occur such as link down
 or rule modification.
 SW0 then works properly as an \textbf{aggregate switch} to route traffic
 between different subnets.
-SW1, SW2 and SW3 play as \textbf{edge switches} for three subnets respectively.
+SW1, SW2 and SW3 play as \textbf{edge switches}, switches at the leave of the topology,
+for three subnets respectively.
 In this very special case, there is only one host connected to each edge switch.
 
 Our approach abstracts the network composed of both aggregate switch and edge switches
 to one ``big switch" that has logically equivalent functions.
 The first step in the abstraction process is to extract \textit{equivalence classes}
 through the OpenFlow rules from any devices in the network.
-As defined in \cite{Veriflow}, equivalence class (EC) is the set of packets that
-experience identical forwarding action at \textbf{any} network device.
+As formally defined later in Section~\ref{Sec:Design} and in \cite{Veriflow}, equivalence class (EC) is
+the set of packets that experience identical forwarding action at \textbf{any} network device.
 This concept is proposed to confine network verification activities to the minimal
 effected set of packets\cite{Veriflow}.
 In our approach, we utilize EC to merge all the rules on a set of switches.

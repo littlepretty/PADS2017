@@ -1,13 +1,6 @@
 \section{Design of BigSim}
 \label{Sec:Design}
 
-\begin{figure}[h]
-\centering
-\includegraphics[scale=.6]{figures/BigSimOverview.pdf}
-\caption{BigSim transforms a SDN network (controller is not shown for simplicity) to a virtual OpenFlow switch without the loss of forwarding logic.}
-\label{Fig:BigSimOverview}
-\end{figure}
-
 We have sketched the process of how to replace a OpenFlow-switch-connected network
 with a single OpenFlow switch in section~\ref{Sec:MotivationalExample}.
 The overview architecture of our design is shown in Figure~\ref{Fig:BigSimOverview}.
@@ -24,6 +17,7 @@ Equivalence Class (EC) is the set of packets that
 experience identical forwarding action at \textbf{any} network device.
 \label{Def:EC}
 \end{definition}
+
 Inspired by VeriFlow\cite{Veriflow}, we aggregate forwarding rules using a trie.
 A trie node have three child nodes, each representing one of the three possible
 bit values a rule can match: zero, one or wildcard.
@@ -32,6 +26,10 @@ each representing one packet header field.
 In the tree-topology network, for example, the trie is just a single sub-trie that
 corresponds to the $NW\_DST$ header field (network-layer destination address)
 of the rule match field.
+Notice that EC can be defined by multiple fields together.
+As a result, we can, for example, match the source address of the packet (e.g. $NW\_SRC$)
+and service type of the traffic ($TCP\_SRC$).
+The resulting trie will then be three sub-tries concatenated.
 Here we give solutions to two problems that VeriFlow neglected.
 
 \subsubsection{Disjoint EC as Disjoint Intervals}
@@ -132,7 +130,6 @@ if they intersect with the same set of rules $\Delta$ in the network.
 According to Lemma~\ref{Lemma:MergeEC}, in Figure~\ref{Fig:DisjointECsAsInterval} for example,
 because both $EC_2$ and $EC_4$ intersect with range $B$ and $C$, we can treat them as one EC.
 
-The informal proof of Lemma~\ref{Lemma:MergeEC} is as follows.
 If EC $\alpha$ and EC $\beta$ satiesfis the condition in Lemma~\ref{Lemma:MergeEC},
 in Algorithm~\ref{Alg:GenDisjointECs}, $\alpha$ and $\beta$ come from
 the same set of rules.

@@ -15,6 +15,14 @@ people are not always confident with its fidelity due to its idealized modelling
 In contrast, researcher in SDN community propose container-based emulation that utilize
 shared hardware resources and real network stack to run high-fidelity SDN experiments\cite{Mininet}.
 However, the experiment scale is limited to the resources available on the running machine.
+For example in a traditional tree-topology network with depth 4 and fanout 10,
+we need to start up 1111 switches and 10000 hosts.
+If we want to achieve full connectivity, we need to install at least 799,920,000(=8 * 10000 * 9999)
+OpenFlow rules in total.
+Assuming rules only have source IP address, destination IP address, inport number and outport number,
+each rule will consume at least 10 Bytes memory, meaning around 7.45 GB of memory are required to
+emulate this network.
+Such intensive resource requirement are not commonly satisfied by commodity low-end machines.
 
 % State our idea
 In this work we propose to address the scalability issue by simplifying the emulated
@@ -23,21 +31,22 @@ Inspired by works of~\cite{OneBigSwitchAbstraction, Veriflow},
 we abstract a subset of the networked SDN switches as \textbf{one} big switch.
 In the very extreme case, the entire set of the SDN switches are compressed to
 one OpenFlow switch.
-The obvious benefit is the much less required simulating or emulating resources,
-for example, number of switches and/or number of rules existing in the network.
+The obvious benefit is the much less number of switches and/or number of rules existing in the network.
+For the example mention above, we only need to start up one switch and 10000 hosts.
+On the single switch, we only need to install about 99,990,000 rules, requiring about 1 GB memory.
 Besides, the abstracted big switch can be used in multiple plug-in-play scenarios.
 For example, researchers can reproduce the simulation result with very
 simple configurations (link connectivity setup, flow table configuration etc.)
 after one complex run on the original network.
 In the case of a too-large-to-simulate network, we can divide it into subsets of switches,
-abstract each subset separately and then combine them together, resulting in a
-size-reduced network.
+abstract each subset separately.
+Then we are able to combine multiple big switches together and emulating the size-reduced network.
 
 The big switch must preserve \textbf{packet-level fidelity} so that
 it can be used with confidence in simulation or emulation.
 More concretely, we need to abstract the SDN network under two constraints:
 \begin{itemize}
-\item \textbf{Logical Equivalence.} The forwarding behavior of any packet must be identical
+\item \textbf{Logic Equivalence.} The forwarding behavior of any packet must be identical
         between both representations of the real network. Packets being
         forwarded through out the network (1) will also be forwarded through out
         some interface of the big switch, (2) any modifications made by
@@ -57,6 +66,13 @@ More concretely, we need to abstract the SDN network under two constraints:
 While our long term goal is to propose systematic approaches and algorithms to reduce
 networked SDN switches to one switch that satisfies both logical equivalence and performance
 equivalence, in this work, we mainly focus on the former constraint.
+To preserve the forwarding logic in a group of interconnected OpenFlow switches,
+we first classify all the possible packets (equivalence classes) by iterating through
+the match fields in each rules in the network;
+then we model each class of packet's forwarding behavior by create forwarding graphs;
+at last one rule will be generated at the end of forwarding graph traversal.
+This three-step process is illustrated in Figure~\ref{Fig:BigSimOverview} and discussed
+in detail in Section~\ref{Sec:Design}.
 Our contributions include:
 \begin{itemize}
 \item We apply the reversed idea of ``One Big Switch"\cite{OneBigSwitchAbstraction}
@@ -69,4 +85,10 @@ Our contributions include:
         algorithms to reduce the time complexity.
 \end{itemize}
 
+\begin{figure}[t]
+\centering
+\includegraphics[scale=.6]{figures/BigSimOverview.pdf}
+\caption{BigSim transforms a SDN network (controller is not shown for simplicity) to a virtual OpenFlow switch without the loss of forwarding logic.}
+\label{Fig:BigSimOverview}
+\end{figure}
 
