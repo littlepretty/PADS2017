@@ -1,5 +1,5 @@
 \section{Evaluation}
-In this section, we use a series of experiments to show that
+In this section, we use a set of experiments to show that
 given an interested SDN (sub)network with rules $SN(R)$, our approach can 
 (1) transform $SN(R)$ to a single OpenFlow switch without any loss of forwarding logic in network $SN(R)$;
 (2) save emulation resources such as number of total rules in the network and emulation runtime.
@@ -12,6 +12,7 @@ it is good for demonstration purpose since the tree topology is well-structured 
 all hosts in it are potentially fully-connected with at most $2d$ hops.
 
 \subsection{Preserve Forwarding Logic}
+\label{SubSec:PreserveForwardingLogic}
 In the following set of experiment, we demonstrate that forwarding logic in $SN(R)$ are
 perfectly preserved by the big-virtual-switch approach.
 We generate forwarding logic in tree-topology network by create paths between random host pairs.
@@ -54,10 +55,10 @@ the number of successfully received \texttt{ping} packets by host $i$ from host 
 We have repeated this experiment for different ($d, f$) pairs $\in$
 \{(2, 3), (2, 4), (3, 3), (3, 4), (4, 3), (4, 4)\} and found that
 $\mathcal{R}_1 = \mathcal{R}_2$ holds in all six experiment settings.
-As an example, we have visualized $\mathcal{R}_1$ and $\mathcal{R}_2$ for ($d=2, f=3$) as gray image
+As an example, we visualize $\mathcal{R}_1$ and $\mathcal{R}_2$ for ($d=2, f=3$) as gray image
 in Figure~\ref{Fig:PingMatrix1} and Figure~\ref{Fig:PingMatrix2},
 where brightness is proportional to number of received packets.
-In this way it is easy to see that $\mathcal{R}_1$ and $\mathcal{R}_2$ are identical.
+In this way it is easy to see that $\mathcal{R}_1$ and $\mathcal{R}_2$ are identical indeed.
 
 \begin{figure*}[t]
         \centering
@@ -73,3 +74,29 @@ In this way it is easy to see that $\mathcal{R}_1$ and $\mathcal{R}_2$ are ident
         \label{Fig:TwoPingMatrix}
 \end{figure*}
 
+\subsection{Reduce Emulation Resource}
+% memory ?
+During the running of the set of experiments in Section~\ref{Subsec:PreserveForwardingLogic},
+we collected two kinds of emulation statistics:
+\begin{itemize}
+\item Total number of OpenFlow rules in both $net_1$ and $net_2$ for different topological
+        parameter settings respectively.
+        The results are plotted in Figure~\ref{Fig:CompareNumRules}.
+\item Emulation running time, including the time to setup and stop the network.
+        The results are plotted in Figure~\ref{Fig:CompareEmuTime}.
+\end{itemize}
+
+The benefit of our approach is that both number of switches and number of rules needed
+for emulation are significantly reduced.
+This also have implications on the running time of the entire emulation
+because network can be started up and cleaned up with less time.
+
+\subsection{Overhead of Our Approach}
+The overhead of our approach is that we need to process the existing rules in original network,
+map the original topology to a single-switch topology, and
+generate new rules and install them on the big switch.
+In practice this process can be done offline once, as we did in the experiments above,
+and the result can be reused thereafter.
+We have discussed our approach's asymptotic time complexity at several places in Section~\ref{Sec:Design}.
+Here we show that in practice,
+the processing overhead is tolerable as the number of rules to be processed increases.
