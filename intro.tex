@@ -17,30 +17,41 @@ shared hardware resources and real network stack to run high-fidelity SDN experi
 However, the experiment scale is limited to the resources available on the running machine.
 For example in a traditional tree-topology network with depth 4 and fanout 10,
 we need to start up 1111 switches and 10000 hosts.
-If we want to achieve full connectivity, we need to install at least 799,920,000(=8 * 10000 * 9999)
+If we want to achieve full connectivity, we need to install at least 399,960,000($\approx$ 4 * 10000 * 9999)
 OpenFlow rules in total.
 Assuming rules only have source IP address, destination IP address, inport number and outport number,
-each rule will consume at least 10 Bytes memory, meaning around 7.45 GB of memory are required to
+each rule will consume at least 10 Bytes memory, meaning around 3.72 GB of memory are required to
 emulate this network.
 Such intensive resource requirement are not commonly satisfied by commodity low-end machines.
 
 % State our idea
 In this work we propose to address the scalability issue by simplifying the emulated
 SDN network both logically and physically.
-Inspired by works of~\cite{OneBigSwitchAbstraction, Veriflow},
+Inspired by works of~\cite{OneBigSwitchAbstraction},
 we abstract a subset of the networked SDN switches as \textbf{one} big switch.
-In the very extreme case, the entire set of the SDN switches are compressed to
-one OpenFlow switch.
+The one big switch idea in~\cite{OneBigSwitchAbstraction} abstracts the entire SDN network as
+a big switch so that the network applications just need to programme the network with simple
+endpoint policy, while the controller platform is helping in the background to handle
+the low-level problems such as routing policy, switch memory limits and forwarding rules.
+Our idea is to apply the big switch abstraction reversely:
+if the user of network emulation are just interested in the behavior of the packets in
+a snapshot of the network, but not interested in what happened in the bottom of the network,
+for example, hop-by-hop routing rule, memory consumption on the switch, then why don't we
+just create a network with only endpoint policy and emulate it such that packet-level
+fidelity is preserved.
+In this case, we can compress the entire set of the SDN switches to single OpenFlow switch.
+
 The obvious benefit is the much less number of switches and/or number of rules existing in the network.
 For the example mention above, we only need to start up one switch and 10000 hosts.
-On the single switch, we only need to install about 99,990,000 rules, requiring about 1 GB memory.
+On the single switch, we just need to install about 99,990,000 rules, only requiring less than 0.94 GB memory.
 Besides, the abstracted big switch can be used in multiple plug-in-play scenarios.
 For example, researchers can reproduce the simulation result with very
 simple configurations (link connectivity setup, flow table configuration etc.)
 after one complex run on the original network.
 In the case of a too-large-to-simulate network, we can divide it into subsets of switches,
 abstract each subset separately.
-Then we are able to combine multiple big switches together and emulating the size-reduced network.
+Then we are able to combine multiple ``big switch" components together
+and emulating the size-reduced network.
 
 The big switch must preserve \textbf{packet-level fidelity} so that
 it can be used with confidence in simulation or emulation.
@@ -88,7 +99,8 @@ Our contributions include:
 \begin{figure}[t]
 \centering
 \includegraphics[scale=.6]{figures/BigSimOverview.pdf}
-\caption{BigSim transforms a SDN network (controller is not shown for simplicity) to a virtual OpenFlow switch without the loss of forwarding logic.}
+\caption{BigSim transforms a SDN network (controller is not shown for simplicity) to a
+virtual OpenFlow switch without the loss of forwarding logic.}
 \label{Fig:BigSimOverview}
 \end{figure}
 
