@@ -22,8 +22,8 @@ ax.bar(logx - width/2, logy, width, color='white', hatch='//')
 plt.xticks(logx, ['%.1f' % i for i in logx])
 plt.grid(True)
 
-plt.xlabel('#Rules processed in log scale')
-plt.ylabel('Runtime in log scale (Milliseconds)')
+plt.xlabel('#Rules Processed in Log Scale')
+plt.ylabel('Runtime in Log Scale (Milliseconds)')
 plt.legend(loc='upper left')
 plt.tight_layout()
 
