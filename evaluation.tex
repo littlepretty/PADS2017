@@ -13,6 +13,21 @@ all hosts in it are potentially fully-connected with at most $2d$ hops.
 
 \subsection{Preserve Forwarding Logic}
 \label{SubSec:PreserveForwardingLogic}
+
+\begin{figure*}[h]
+        \centering
+        \subfloat[Packets received in $net_1$] {
+                \includegraphics[scale=.5]{figures/ping_mat_2_3.eps}
+                \label{Fig:PingMatrix1}
+        }
+        \subfloat[Packets received in $net_2$] {
+                \includegraphics[scale=.5]{figures/bs_ping_mat_2_3.eps}
+                \label{Fig:PingMatrix2}
+        }
+        \caption{$\mathcal{R}_1$ and $\mathcal{R}_2$ of two emulated networks ($f=3, d=2$)}
+        \label{Fig:TwoPingMatrix}
+\end{figure*}
+
 In the following set of experiment, we demonstrate that forwarding logic in $SN(R)$ are
 perfectly preserved by the big-virtual-switch approach.
 We generate forwarding logic in tree-topology network by create paths between random host pairs.
@@ -60,19 +75,6 @@ in Figure~\ref{Fig:PingMatrix1} and Figure~\ref{Fig:PingMatrix2},
 where brightness is proportional to number of received packets.
 In this way it is easy to see that $\mathcal{R}_1$ and $\mathcal{R}_2$ are identical indeed.
 
-\begin{figure*}[t]
-        \centering
-        \subfloat[Packets received in $net_1$] {
-                \includegraphics[scale=.5]{figures/ping_mat_2_3.eps}
-                \label{Fig:PingMatrix1}
-        }
-        \subfloat[Packets received in $net_2$] {
-                \includegraphics[scale=.5]{figures/bs_ping_mat_2_3.eps}
-                \label{Fig:PingMatrix2}
-        }
-        \caption{$\mathcal{R}_1$ and $\mathcal{R}_2$ of two emulated networks ($f=3, d=2$)}
-        \label{Fig:TwoPingMatrix}
-\end{figure*}
 
 \subsection{Reduce Emulation Resource}
 % memory ?
@@ -92,11 +94,27 @@ This also have implications on the running time of the entire emulation
 because network can be started up and cleaned up with less time.
 
 \subsection{Overhead of Our Approach}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=.42]{figures/bs_overhead.eps}
+\caption{The running time overhead of our approach scales linear with the number of
+        rules it needs to process.}
+\label{Fig:BSOverhead}
+\end{figure}
+
 The overhead of our approach is that we need to process the existing rules in original network,
 map the original topology to a single-switch topology, and
-generate new rules and install them on the big switch.
+generate new rules.
 In practice this process can be done offline once, as we did in the experiments above,
-and the result can be reused thereafter.
+and the newly generated rule can be installed in multiple runs thereafter.
 We have discussed our approach's asymptotic time complexity at several places in Section~\ref{Sec:Design}.
-Here we show that in practice,
-the processing overhead is tolerable as the number of rules to be processed increases.
+Here we show the running time $rt$ of the three-step approach with regard to
+the number of rules it processed $nr$ in the logic-preserving experiment.
+Since the scale of the experiment increases exponentially, we put both x-axis($nr$)
+and y-axis ($rt$) in binary log scale ($\log_2$).
+For the largest input size $nr=5766$, abstracting a tree network with depth 4 and
+fanout 3 finishes in 3.15 seconds.
+In Figure~\ref{Fig:BSOverhead}, it is clear that our approach scale linearly as the
+input size increases and the overall processing overhead is tolerable for online use.
+

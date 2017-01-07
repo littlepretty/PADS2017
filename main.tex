@@ -179,14 +179,16 @@ In this work we propose to leverage this paradigm in emulating large scale SDN n
 Given a snapshot of the SDN powered network,
 we can cluster any number of OpenFlow devices into one virtualized switches
 that preserve packet-level fidelity.
+Emulating the big-switch network has many benefits such as emulation resource reduction,
+larger-scale network support and component reuse.
 %Our long term goal is to abstract the clustered portion of the SDN network so that
 %emulating one OpenFlow switch is equivalent to a great number of interconnected
 %OpenFlow switches in terms of both forwarding logics and network performance metrics.
-
-In this paper we focus on preserving the forwarding logic in a SDN network.
+In this work we focus on preserving the forwarding logic in a SDN network.
 We slice the packets in a network into equivalence class and
-perform forwarding graph traversal to efficiently aggregate
+perform forwarding graph traversals to efficiently aggregate
 the distributed forwarding rules installed on a group of OpenFlow switches.
+Rules on the big switch are generated at the end of the traversal for each equivalence class's forwarding graph.
 Preliminary experiment results show that the rules on the abstracted ``big" switch
 can be compactly expressed without loss of forwarding correctness.
 Thus a large amount of emulating resources (rules and switches in the network) can be reduced via just the first logic abstraction stage.
