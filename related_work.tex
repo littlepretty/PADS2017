@@ -1,0 +1,42 @@
+\section{Related Work}
+
+\subsection{Network Forwarding Rules Abstraction}
+This work is initially inspired by the "one big switch" idea proposed
+in \cite{OneBigSwitchAbstraction}.
+The entire SDN network are logically abstracted as one big OpenFlow switch such
+that network developers just need to specify the end-to-end policies they want
+to install into the network.
+Underlying, the lower layers are responsible for address various implementation
+issues such as hop-by-hop routing rules and rule placement mechanism.
+In their work, the end-to-end policy is given by network applications.
+Our work actually takes the reversed direction: we assume the forwarding rules on each
+switch are available and we want to correctly infer the end-to-end policies.
+Our three-step approach borrows several ideas like equivalence class, forwarding graphs
+from VeriFlow\cite{Veriflow}, to slice the class of packets in the network.
+There are, however, many significant differences between our approach and VeriFlow.
+First VeriFlow uses EC and forwarding graphs so that verifying a new coming rule can be
+both efficient and correct;
+our goal is to generate rule on the big switch per packet class.
+Secondly, we consider the entire connected SDN network when we run forwarding traversal,
+especially the boundary switches that Veriflow neglects.
+We also add up several algorithms in finding equivalence classes.
+
+\subsection{SDN Emulation and Simulation}
+There are a number of SDN emulation and simulation testbeds based on the OpenFlow
+protocol.
+Examples include Mininet\cite{Mininet}, EstiNet\cite{Estinet}, ns-3\cite{NS3},
+S3FNet\cite{S3F}, fs-sdn\cite{FSSDN} and OpenNet\cite{OpenNet}.
+The most popular SDN emulator Mininet applies container-based virtualization technique
+and cgroup based resource isolation to provide lightweigth and high fidelity emualtion
+platform.
+Its functional fidelity is guaranteed by executing real SDN switch and controller software.
+The traditional network simulator ns-3 supports models to simulate SDN network or emulate SDN
+controller via direct code execution technique.
+S3FNet is a hybrid OpenFlow-based SDN testing platform that integrates a parallel
+network simulator with a OpenVZ-based network emulator.
+fs-sdn is built on fs, a flow-level discrete event network simulator, and extends SDN
+capability to fs.
+We propose a systematic method to simplify the large scale and complicated SDN network target.
+It serves as a preprocessing tool that generate a compact network model.
+This resulting big-switch network can be used in both simulation and emulation environment
+and its usage is not limited by any particular emulator or simulator.
