@@ -57,20 +57,24 @@ The big switch must preserve \textbf{packet-level fidelity} so that
 it can be used with confidence in simulation or emulation.
 More concretely, we need to abstract the SDN network under two constraints:
 \begin{itemize}
-\item \textbf{Logic Equivalence.} The forwarding behavior of any packet must be identical
+\item \textbf{Network Forwarding Rule Equivalence.}
+        The forwarding behavior of any packet must be identical
         between both representations of the real network. Packets being
         forwarded through out the network (1) will also be forwarded through out
-        some interface of the big switch, (2) any modifications made by
-        intermediate switches must be made by the big switch in proper order.
+        some interface of the big switch and reach proper destination;
+        (2) any modifications made by intermediate switches must be made by the
+        big switch in proper order.
         Packets being dropped at some point in the network path will be drop by the
         big switch.
-\item \textbf{Performance Equivalence.} A packet transmitted through a series of
+\item \textbf{End-to-End Latency Equivalence.}
+        A packet transmitted through a series of
         switches can be seen as processed by multiple queueing systems $\mathcal{Q}$.
-        Similarly, the packet processing performance model in a big OpenFlow switch can
+        Similarly, the packet processing model in a big OpenFlow switch can
         also be modeled as a queueing system $Q$.
-        The parameters of the later should be configured so that per packet performance
-        measurements are as closed as possible to the ones in the former composite model.
-        As an informal example, queueing delay for packet $p$, $Q(p, T)$, should be an
+        The parameters of the later should be configured intelligently
+        so that per packet performance metrics are as closed as possible to the ones
+        in the former composite model.
+        In other words, queueing delay for packet $p$, $Q(p, T)$, should be an
         function that approximates $\mathcal{Q}(p, T')$.
 \end{itemize}
 

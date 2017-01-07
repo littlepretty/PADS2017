@@ -17,11 +17,11 @@ all hosts in it are potentially fully-connected with at most $2d$ hops.
 \begin{figure*}[h]
         \centering
         \subfloat[Packets received in $net_1$] {
-                \includegraphics[scale=.5]{figures/ping_mat_2_3.eps}
+                \includegraphics[scale=.42]{figures/ping_mat_2_3.pdf}
                 \label{Fig:PingMatrix1}
         }
         \subfloat[Packets received in $net_2$] {
-                \includegraphics[scale=.5]{figures/bs_ping_mat_2_3.eps}
+                \includegraphics[scale=.42]{figures/bs_ping_mat_2_3.pdf}
                 \label{Fig:PingMatrix2}
         }
         \caption{$\mathcal{R}_1$ and $\mathcal{R}_2$ of two emulated networks ($f=3, d=2$)}
@@ -76,22 +76,29 @@ where brightness is proportional to number of received packets.
 In this way it is easy to see that $\mathcal{R}_1$ and $\mathcal{R}_2$ are identical indeed.
 
 
-\subsection{Reduce Emulation Resource}
-% memory ?
-During the running of the set of experiments in Section~\ref{Subsec:PreserveForwardingLogic},
-we collected two kinds of emulation statistics:
-\begin{itemize}
-\item Total number of OpenFlow rules in both $net_1$ and $net_2$ for different topological
-        parameter settings respectively.
-        The results are plotted in Figure~\ref{Fig:CompareNumRules}.
-\item Emulation running time, including the time to setup and stop the network.
-        The results are plotted in Figure~\ref{Fig:CompareEmuTime}.
-\end{itemize}
+\subsection{Speedup Simulation/Emulation}
 
+\begin{figure}[h]
+\centering
+\includegraphics[scale=.42]{figures/comp_num_rules.pdf}
+\caption{The number of rules on big switch is approximately one tenth of the
+        number of rules existing in the original tree-topology network.}
+\label{Fig:CompareNumRules}
+\end{figure}
+
+During the running of the set of experiments in Section~\ref{SubSec:PreserveForwardingLogic},
+we collected the total number of rules in the snapshot of the network in both $net_1$
+and $net_2$.
+The results are plotted in Figure~\ref{Fig:CompareNumRules} for different
+topological parameter settings respectively.
+Notice that y-axis is in log scale.
+We assert the reason of simulation speedup is our approach's abstraction power.
+The number of rules on big switch is approximately one degree of magnitude less
+than the number of rules existing in the original tree-topology network.
+For example, in the case of (4, 3) 52660 rules are reduced to 5766 rules.
 The benefit of our approach is that both number of switches and number of rules needed
-for emulation are significantly reduced.
-This also have implications on the running time of the entire emulation
-because network can be started up and cleaned up with less time.
+for simulation/emulation are significantly reduced.
+This have implications on the running time of the simulation/emulation.
 
 \subsection{Overhead of Our Approach}
 
@@ -113,8 +120,9 @@ Here we show the running time $rt$ of the three-step approach with regard to
 the number of rules it processed $nr$ in the logic-preserving experiment.
 Since the scale of the experiment increases exponentially, we put both x-axis($nr$)
 and y-axis ($rt$) in binary log scale ($\log_2$).
-For the largest input size $nr=5766$, abstracting a tree network with depth 4 and
+For the largest input size $nr=53260$, abstracting a tree network with depth 4 and
 fanout 3 finishes in 3.15 seconds.
 In Figure~\ref{Fig:BSOverhead}, it is clear that our approach scale linearly as the
-input size increases and the overall processing overhead is tolerable for online use.
+input size increases in the scenario of this tree-topology network.
+The overall processing overhead experienced in this experiment is tolerable for online use.
 

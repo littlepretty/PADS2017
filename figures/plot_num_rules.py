@@ -15,9 +15,9 @@ scale_tree = [x - width for x in ticks]
 scale_bs = [x for x in ticks]
 
 fig, ax = plt.subplots()
-ax.bar(scale_tree, tree_rules, width, color='red', hatch='/',
+ax.bar(scale_tree, tree_rules, width, color='red', alpha=0.618, hatch='/',
        label='Tree Network')
-ax.bar(scale_bs, bs_rules, width, color='blue', hatch='\\',
+ax.bar(scale_bs, bs_rules, width, color='blue', alpha=0.618, hatch='\\',
        label='Big-Switch Network')
 print(scale_tree)
 print(scale_bs)
@@ -26,9 +26,10 @@ plt.yscale('log')
 plt.xticks(ticks, ['(2,3)', '(2,4)', '(3,3)', '(3,4)', '(4,3)'])
 plt.grid(True)
 plt.legend(loc='upper left')
-plt.xlabel('Tree-Topology Settings')
-plt.ylabel('Total #Rules in Network')
+plt.xlabel('Tree-Topology Network Settings')
+plt.ylabel('Total #Rules in Log Scale')
 
 plt.tight_layout()
-plt.savefig('comp_num_rules.eps', fmt='eps')
+# eps format doesn't support transparency
+plt.savefig('comp_num_rules.pdf', fmt='pdf')
 plt.show()
