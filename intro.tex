@@ -53,8 +53,33 @@ abstract each subset separately.
 Then we are able to combine multiple ``big switch" components together
 and emulating the size-reduced network.
 
-The big switch must preserve \textbf{packet-level fidelity} so that
-it can be used with confidence in simulation or emulation.
+These attractive benefits are only valid when the one-big-switch abstraction preserves
+the forwarding logic in a group of interconnected OpenFlow switches.
+We propose a three-step approach leveraging several existing ideas in SDN community.
+We first classify all the possible packets into equivalence classes by iterating through
+the match fields in each rules in the network;
+then we model each class of packet's forwarding actions in the network
+by create forwarding graphs;
+at last, new rules on the big switch will be generated at the end of the 
+forwarding graph traversal for each equivalence class
+This three-step process is illustrated in Figure~\ref{Fig:BigSimOverview} and discussed
+in detail in Section~\ref{Sec:Design}.
+In summary, our contributions include:
+\begin{itemize}
+\item We apply the reversed idea of ``One Big Switch"\cite{OneBigSwitchAbstraction}
+        to SDN network simulation or emulation in order to
+        improve their scalability and reusability.
+\item Built on the idea of equivalence class and forwarding graph, we design
+        a systematic approach to compress all the rules in a SDN network without
+        loss of forwarding logic.
+\item For several phases in our approach, we propose corresponding optimization
+        algorithms to reduce the time complexity.
+\end{itemize}
+
+The ``one big switch" idea is not complete with our contributions in this paper.
+It has the potential to preserve \textbf{packet-level fidelity} and
+can be further extend so as to be used with much more confidence in network
+simulation or emulation.
 More concretely, we need to abstract the SDN network under two constraints:
 \begin{itemize}
 \item \textbf{Network Forwarding Rule Equivalence.}
@@ -80,25 +105,7 @@ More concretely, we need to abstract the SDN network under two constraints:
 
 While our long term goal is to propose systematic approaches and algorithms to reduce
 networked SDN switches to one switch that satisfies both logical equivalence and performance
-equivalence, in this work, we mainly focus on the former constraint.
-To preserve the forwarding logic in a group of interconnected OpenFlow switches,
-we first classify all the possible packets (equivalence classes) by iterating through
-the match fields in each rules in the network;
-then we model each class of packet's forwarding behavior by create forwarding graphs;
-at last one rule will be generated at the end of forwarding graph traversal.
-This three-step process is illustrated in Figure~\ref{Fig:BigSimOverview} and discussed
-in detail in Section~\ref{Sec:Design}.
-Our contributions include:
-\begin{itemize}
-\item We apply the reversed idea of ``One Big Switch"\cite{OneBigSwitchAbstraction}
-        to SDN network simulation or emulation in order to
-        improve their scalability and reusability.
-\item Built on the idea of equivalence class and forwarding graph, we design
-        a systematic approach to compress all the rules in a SDN network without
-        loss of forwarding logic.
-\item For several phases in our approach, we propose corresponding optimization
-        algorithms to reduce the time complexity.
-\end{itemize}
+equivalence, in this work, we mainly focus on the first part.
 
 \begin{figure}[t]
 \centering

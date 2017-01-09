@@ -17,7 +17,7 @@ print(y)
 fig, ax = plt.subplots()
 ax.plot(logx, logy, 'b', linewidth=4.0, label='Binary logarithm')
 width = 0.4
-ax.bar(logx - width/2, logy, width, color='white', hatch='//')
+ax.bar(logx - width/2, logy, width, color='white', hatch='/')
 
 plt.xticks(logx, ['%.1f' % i for i in logx])
 plt.grid(True)
