@@ -191,7 +191,9 @@ the distributed forwarding rules installed on a group of OpenFlow switches.
 Rules on the big switch are generated at the end of the traversal for each equivalence class's forwarding graph.
 Preliminary experiment results show that the rules on the abstracted ``big" switch
 can be compactly expressed without loss of forwarding correctness.
-Thus a large amount of emulating resources (rules and switches in the network) can be reduced via just the first logic abstraction stage.
+Only one tenth of the forwarding rules and one switch are sufficient to model
+a tree-topology network with 40 switches and 53260 rules.
+It only takes less than 3.2 seconds for our approach to solve this problem.
 \end{abstract}
 
 

@@ -78,8 +78,7 @@ where brightness is proportional to $\mathcal{R}[i][j]$,
 the number of returned packets sending out from host $i$ and echoed back from host $j$.
 In this way it is easy to see that $\mathcal{R}_1$ and $\mathcal{R}_2$ are identical indeed.
 
-
-\subsection{Speedup Simulation/Emulation}
+%\subsection{Speedup Simulation/Emulation}
 
 \begin{figure}[h]
 \centering
@@ -89,19 +88,18 @@ In this way it is easy to see that $\mathcal{R}_1$ and $\mathcal{R}_2$ are ident
 \label{Fig:CompareNumRules}
 \end{figure}
 
-During the running of the set of experiments in Section~\ref{SubSec:PreserveForwardingLogic},
+During the running of this group of experiments,
 we collected the total number of rules in the snapshot of the network in both $net_1$
 and $net_2$.
 The results are plotted in Figure~\ref{Fig:CompareNumRules} for different
 topological parameter settings respectively.
 Notice that y-axis is in log scale.
-We assert the reason of simulation speedup is our approach's abstraction power.
 The number of rules on big switch is approximately one degree of magnitude less
 than the number of rules existing in the original tree-topology network.
 For example, in the case of (4, 3) 53260 rules are reduced to 5766 rules.
 The benefit of our approach is that both number of switches and number of rules needed
 for simulation/emulation are significantly reduced.
-This have implications on the running time of the simulation/emulation.
+This will have implications on the running time of the simulation/emulation.
 
 \subsection{Overhead of Our Approach}
 
