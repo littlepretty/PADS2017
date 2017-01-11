@@ -76,11 +76,11 @@ In summary, our contributions include:
         algorithms to reduce the time complexity.
 \end{itemize}
 
-The ``one big switch" idea is not complete with our contributions in this paper.
+The ``one big switch" idea is not yet complete only with our contributions in this paper.
 It has the potential to preserve \textbf{packet-level fidelity} and
 can be further extend so as to be used with much more confidence in network
 simulation or emulation.
-More concretely, we need to abstract the SDN network under two constraints:
+The precondition is that it needs to abstract the SDN network with two constraints:
 \begin{itemize}
 \item \textbf{Network Forwarding Rule Equivalence.}
         The forwarding behavior of any packet must be identical
@@ -104,8 +104,9 @@ More concretely, we need to abstract the SDN network under two constraints:
 \end{itemize}
 
 While our long term goal is to propose systematic approaches and algorithms to reduce
-networked SDN switches to one switch that satisfies both logical equivalence and performance
-equivalence, in this work, we mainly focus on the first part.
+networked SDN switches to one switch that satisfies both network forwarding rule equivalence
+and end-to-end latency equivalence, in this work, we mainly focus on preserving the first one,
+leaving how to preserve end-to-end latency equivalence to future work.
 
 \begin{figure}[t]
 \centering

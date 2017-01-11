@@ -68,11 +68,14 @@ The result of this experiment is a matrix $\mathcal{R}_k$ where $\mathcal{R}[i][
 the number of successfully received \texttt{ping} packets by host $i$ from host $j$ in $net_k$.
 
 We have repeated this experiment for different ($d, f$) pairs $\in$
-\{(2, 3), (2, 4), (3, 3), (3, 4), (4, 3), (4, 4)\} and found that
-$\mathcal{R}_1 = \mathcal{R}_2$ holds in all six experiment settings.
+\{(2, 3), (2, 4), (3, 3), (3, 4), (4, 3)\} and found that
+$\mathcal{R}_1 = \mathcal{R}_2$ holds in all five experiment settings.\footnote{For each
+experiment setting, we save the experiment result $\mathcal{R}_1$ and $\mathcal{R}_1$
+as text and compare them using \texttt{diff} command.}
 As an example, we visualize $\mathcal{R}_1$ and $\mathcal{R}_2$ for ($d=2, f=3$) as gray image
 in Figure~\ref{Fig:PingMatrix1} and Figure~\ref{Fig:PingMatrix2},
-where brightness is proportional to number of received packets.
+where brightness is proportional to $\mathcal{R}[i][j]$,
+the number of returned packets sending out from host $i$ and echoed back from host $j$.
 In this way it is easy to see that $\mathcal{R}_1$ and $\mathcal{R}_2$ are identical indeed.
 
 
@@ -95,7 +98,7 @@ Notice that y-axis is in log scale.
 We assert the reason of simulation speedup is our approach's abstraction power.
 The number of rules on big switch is approximately one degree of magnitude less
 than the number of rules existing in the original tree-topology network.
-For example, in the case of (4, 3) 52660 rules are reduced to 5766 rules.
+For example, in the case of (4, 3) 53260 rules are reduced to 5766 rules.
 The benefit of our approach is that both number of switches and number of rules needed
 for simulation/emulation are significantly reduced.
 This have implications on the running time of the simulation/emulation.

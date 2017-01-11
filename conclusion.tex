@@ -1,2 +1,15 @@
 \section{Conclusion and Future Works}
 
+In this paper we showed that a SDN network can be reduced to a simple OpenFlow switch
+without the loss of the forwarding logic defined by all the rules in the network.
+We proposed a three-step solution to this abstraction problem.
+First we slice all the possible packets in the network into equivalence classes.
+Then we build forwarding graphs for each equivalence class.
+By traversing forwarding graphs, we can generate new rules to be installed
+on the big switch.
+Experiment demonstrates that the big switch abstracted by our approach correctly models
+the end-to-end forwarding behavior of the SDN network with tolerable computational overhead.
+Simulation running time can be reduced using our big-switch model.
+In the future, we plan to solve the problem of how to preserve the end-to-end latency
+equivalence.
+
