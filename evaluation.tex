@@ -14,18 +14,28 @@ all hosts in it are potentially fully-connected with at most $2d$ hops.
 \subsection{Preserve Forwarding Logic}
 \label{SubSec:PreserveForwardingLogic}
 
-\begin{figure*}[h]
+\begin{figure*}[t]
         \centering
-        \subfloat[Packets received in $net_1$] {
+        \subfloat[Packets received in $net_1(d=2, f=3)$] {
                 \includegraphics[scale=.42]{figures/ping_mat_2_3.pdf}
                 \label{Fig:PingMatrix1}
         }
-        \subfloat[Packets received in $net_2$] {
+        \subfloat[Packets received in $net_2(d=2, f=3)$] {
                 \includegraphics[scale=.42]{figures/bs_ping_mat_2_3.pdf}
                 \label{Fig:PingMatrix2}
         }
-        \caption{$\mathcal{R}_1$ and $\mathcal{R}_2$ of two emulated networks ($f=3, d=2$)}
-        \label{Fig:TwoPingMatrix}
+        \\
+        \subfloat[Packets received in $net_1(d=4, f=3)$] {
+                \includegraphics[scale=.42]{figures/ping_mat_4_3.pdf}
+                \label{Fig:PingMatrix3}
+        }
+        \subfloat[Packets received in $net_2(d=4, f=3)$] {
+                \includegraphics[scale=.42]{figures/bs_ping_mat_4_3.pdf}
+                \label{Fig:PingMatrix4}
+        }
+        \caption{Comparing $\mathcal{R}_1$ and $\mathcal{R}_2$ of two emulated networks as
+        gray image}
+        \label{Fig:ComparePingMatrix}
 \end{figure*}
 
 In the following set of experiment, we demonstrate that forwarding logic in $SN(R)$ are
@@ -72,11 +82,13 @@ We have repeated this experiment for different ($d, f$) pairs $\in$
 $\mathcal{R}_1 = \mathcal{R}_2$ holds in all five experiment settings.\footnote{For each
 experiment setting, we save the experiment result $\mathcal{R}_1$ and $\mathcal{R}_1$
 as text and compare them using \texttt{diff} command.}
-As an example, we visualize $\mathcal{R}_1$ and $\mathcal{R}_2$ for ($d=2, f=3$) as gray image
-in Figure~\ref{Fig:PingMatrix1} and Figure~\ref{Fig:PingMatrix2},
-where brightness is proportional to $\mathcal{R}[i][j]$,
+As an example, we visualize $\mathcal{R}_1$ and $\mathcal{R}_2$ for both ($d=2, f=3$)
+and ($d=4, f=3$) as gray image in Figure~\ref{Fig:ComparePingMatrix}.
+In Figure~\ref{Fig:PingMatrix1}-Figure~\ref{Fig:PingMatrix4},
+the pixels' brightness is proportional to $\mathcal{R}[i][j]$,
 the number of returned packets sending out from host $i$ and echoed back from host $j$.
-In this way it is easy to see that $\mathcal{R}_1$ and $\mathcal{R}_2$ are identical indeed.
+In this way it is easy to see that $\mathcal{R}_1$ and $\mathcal{R}_2$ are identical
+indeed for all experiment settings.
 
 %\subsection{Speedup Simulation/Emulation}
 

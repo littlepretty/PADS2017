@@ -14,11 +14,12 @@ ticks = [str(x) for x in range(0, len(tree_matrix) + 1)]
 fig, ax = plt.subplots()
 cax = ax.matshow(tree_matrix, cmap=plt.cm.gray)
 fig.colorbar(cax)
+
 ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
 ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
-
 ax.set_xticklabels(ticks)
 ax.set_yticklabels(ticks)
+
 plt.xlabel('Destination Hosts')
 plt.ylabel('Source Hosts')
 plt.tight_layout()
@@ -29,11 +30,12 @@ plt.show()
 fig, ax = plt.subplots()
 cax = ax.matshow(bs_matrix, cmap=plt.cm.gray)
 fig.colorbar(cax)
+
 ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
 ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
-
 ax.set_xticklabels(ticks)
 ax.set_yticklabels(ticks)
+
 plt.xlabel('Destination Hosts')
 plt.ylabel('Source Hosts')
 plt.tight_layout()
