@@ -95,9 +95,17 @@ indeed for all experiment settings.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=.42]{figures/comp_num_rules.eps}
-\caption{The number of rules on big switch is approximately one tenth of the
-        number of rules existing in the original tree-topology network.}
+\caption{The number of rules on big switch is approximately \textbf{one tenth} of the
+        number of rules existing in the tree-topology network.}
 \label{Fig:CompareNumRules}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=.42]{figures/comp_sim_time.eps}
+\caption{Using our Big-Switch network model, S3FNet can save about 80\% run time
+        comparing to simulating the tree-topology network.}
+\label{Fig:CompareSimulationTime}
 \end{figure}
 
 During the running of this group of experiments,
@@ -112,6 +120,8 @@ For example, in the case of (4, 3) 53260 rules are reduced to 5766 rules.
 The benefit of our approach is that both number of switches and number of rules needed
 for simulation/emulation are significantly reduced.
 This will have implications on the running time of the simulation/emulation.
+
+
 
 \subsection{Overhead of Our Approach}
 
