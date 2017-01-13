@@ -2,6 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
+
+def autolabel(rects):
+    # attach some text labels
+    for rect in rects:
+        height = rect.get_height()
+        ax.text(rect.get_x() + rect.get_width()/2., 1.05*height,
+                '%d' % int(height),
+                ha='center', va='bottom')
+
+
 matplotlib.rc('font', size=18)
 
 bs_data = np.loadtxt('bs_emu_resource.txt')
@@ -15,19 +25,21 @@ scale_tree = [x - width for x in ticks]
 scale_bs = [x for x in ticks]
 
 fig, ax = plt.subplots()
-ax.bar(scale_tree, tree_rules, width, color='w', hatch='/',
-       label='Tree Network')
-ax.bar(scale_bs, bs_rules, width, color='w', hatch='\\',
-       label='Big-Switch Network')
+rects1 = ax.bar(scale_tree, tree_rules, width, color='w', hatch='/',
+                label='Tree Topology')
+rects2 = ax.bar(scale_bs, bs_rules, width, color='w', hatch='\\',
+                label='Big Switch')
 print(scale_tree)
 print(scale_bs)
+autolabel(rects1)
+autolabel(rects2)
 
 plt.yscale('log')
 plt.xticks(ticks, ['(2,3)', '(2,4)', '(3,3)', '(3,4)', '(4,3)'])
 plt.grid(True)
 plt.legend(loc='upper left')
 plt.xlabel('Tree-Topology Network Settings')
-plt.ylabel('Total #Rules in Log Scale')
+plt.ylabel('Total Number of Rules')
 
 plt.tight_layout()
 # eps format doesn't support transparency

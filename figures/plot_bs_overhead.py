@@ -22,12 +22,12 @@ fig, ax = plt.subplots()
 # plt.xlabel('#Rules Processed')
 # plt.ylabel('Running Time (Milliseconds)')
 
-ax.plot(logx, logy, 'b', linewidth=4.0, label='Binary logarithm')
+ax.plot(logx, logy, 'b', linewidth=4.0, label='Overhead Trend')
 width = 0.4
 ax.bar(logx - width/2, logy, width, color='white', hatch='/')
 plt.xticks(logx, ['%.1f' % i for i in logx])
 plt.grid(True)
-plt.xlabel('$\log_2$(#Rules Processed)')
+plt.xlabel('$\log_2$(Number of Rules Processed)')
 plt.ylabel('$\log_2$(Runtime) (Milliseconds)')
 plt.legend(loc='upper left')
 
