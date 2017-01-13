@@ -4,7 +4,7 @@ import matplotlib
 
 
 matplotlib.rc('font', size=18)
-data =np.loadtxt('s3f_sim_time.txt', comments='#')
+data = np.loadtxt('s3f_sim_time.txt', comments='#')
 
 bs_mean = np.zeros(5, dtype=float)
 bs_std = np.zeros(5, dtype=float)
@@ -19,6 +19,9 @@ for i in range(0, len(data), 5):
 
 print(tree_mean)
 print(bs_mean)
+speedup = np.divide(tree_mean, bs_mean)
+print(speedup)
+print('Avg Speedup = %.4f' % np.mean(speedup))
 
 width = 4
 ticks = range(10, 60, 10)
@@ -43,4 +46,3 @@ plt.tight_layout()
 # eps format doesn't support transparency
 plt.savefig('comp_sim_time.eps', fmt='eps')
 plt.show()
-

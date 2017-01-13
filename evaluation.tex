@@ -11,7 +11,7 @@ Though not known as a scalable network architecture
 it is good for demonstration purpose since the tree topology is well-structured and
 all hosts in it are potentially fully-connected with at most $2d$ hops.
 
-\subsection{Preserve Forwarding Logic}
+\subsection{Preserve Forwarding Rule Equivalence}
 \label{SubSec:PreserveForwardingLogic}
 
 \begin{figure*}[t]
@@ -78,10 +78,10 @@ The result of this experiment is a matrix $\mathcal{R}_k$ where $\mathcal{R}[i][
 the number of successfully received \texttt{ping} packets by host $i$ from host $j$ in $net_k$.
 
 We have repeated this experiment for different ($d, f$) pairs $\in$
-\{(2, 3), (2, 4), (3, 3), (3, 4), (4, 3)\} and found that
-$\mathcal{R}_1 = \mathcal{R}_2$ holds in all five experiment settings.\footnote{For each
-experiment setting, we save the experiment result $\mathcal{R}_1$ and $\mathcal{R}_1$
-as text and compare them using \texttt{diff} command.}
+\{(2, 3), (2, 4), (3, 3), (3, 4), (4, 3)\} and, for each experiment setting,
+we save the experiment result $\mathcal{R}_1$ and $\mathcal{R}_2$
+as text in order to compare them using \texttt{diff} command.
+We found that $\mathcal{R}_1 = \mathcal{R}_2$ holds in all five experiment settings.
 As an example, we visualize $\mathcal{R}_1$ and $\mathcal{R}_2$ for both ($d=2, f=3$)
 and ($d=4, f=3$) as gray image in Figure~\ref{Fig:ComparePingMatrix}.
 In Figure~\ref{Fig:PingMatrix1}-Figure~\ref{Fig:PingMatrix4},
@@ -90,7 +90,7 @@ the number of returned packets sending out from host $i$ and echoed back from ho
 In this way it is easy to see that $\mathcal{R}_1$ and $\mathcal{R}_2$ are identical
 indeed for all experiment settings.
 
-%\subsection{Speedup Simulation/Emulation}
+\subsection{Speedup Simulation}
 
 \begin{figure}[h]
 \centering
@@ -120,12 +120,24 @@ For example, in the case of (4, 3) 53260 rules are reduced to 5766 rules.
 The benefit of our approach is that both number of switches and number of rules needed
 for simulation/emulation are significantly reduced.
 This will have implications on the running time of the simulation/emulation.
-
+To show that simplied model and reduced rules can save simulation time, we conduct
+the same set of experiments on network simulator S3FNet\cite{S3F}.
+That is, we build two SDN networks, one for tree-topology network $net_1(d, f)$
+one for the big-switch network $net_2$, separately in S3FNet.
+During the simulations, we set half of the hosts as TCP clients
+and the other half as TCP servers such that client $i$ requests TCP traffic from server $i$.
+All the communications last 100 real-clock seconds.
+We record the simulation run time for both $net_1$ and $net_2$ for different experiment
+settings and compare the average results of ten runs of each settings
+in Figure~\ref{Fig:CompareSimulationTime}.
+The error bar shows the standard deviation of ten independent simulation runs.
+In average, running big-switch network speedups 4.63 times as
+running the tree-topology network.
 
 
 \subsection{Overhead of Our Approach}
 
-\begin{figure}[h]
+\begin{figure}[t]
 \centering
 \includegraphics[scale=.42]{figures/bs_overhead.eps}
 \caption{The running time overhead of our approach scales linear with the number of
