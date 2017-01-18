@@ -34,7 +34,7 @@
 % *** Draw diagrams ***
 \usepackage{tikz}
 \usetikzlibrary{positioning}
-%\usetikzlibrary{arrows.meta}
+\usetikzlibrary{arrows.meta}
 
 % *** Fancy Table ***
 \usepackage{multirow}
@@ -190,7 +190,7 @@ the distributed forwarding rules installed on a group of OpenFlow switches.
 Rules on the big switch are generated after of the traversal for each equivalence class's forwarding graph.
 Preliminary experiment results show that the rules on the abstracted ``big" switch
 can be compactly expressed without loss of forwarding correctness.
-Only one switch and 5000 rules are sufficient to model
+Only one switch and 5766 forwarding rules are sufficient to model
 a tree-topology network with 40 switches and 53260 rules.
 The big-switch network can in average speedup simulation by 4.3 times.
 It only takes less than 3.2 seconds for our approach to finish the ``one big switch" transformation.
