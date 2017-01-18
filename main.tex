@@ -34,7 +34,7 @@
 % *** Draw diagrams ***
 \usepackage{tikz}
 \usetikzlibrary{positioning}
-\usetikzlibrary{arrows.meta}
+%\usetikzlibrary{arrows.meta}
 
 % *** Fancy Table ***
 \usepackage{multirow}
@@ -185,16 +185,15 @@ larger-scale network support and component reuse.
 %emulating one OpenFlow switch is equivalent to a great number of interconnected
 %OpenFlow switches in terms of both forwarding logics and network performance metrics.
 In this work we focus on preserving the forwarding logic in a SDN network.
-We slice the packets in a network into equivalence class and
-perform forwarding graph traversals to efficiently aggregate
+We slice the packets in a network into equivalence classes, so that packets belong to the same class are processed identically. Then, we perform forwarding graph traversals to efficiently aggregate
 the distributed forwarding rules installed on a group of OpenFlow switches.
-Rules on the big switch are generated at the end of the traversal for each equivalence class's forwarding graph.
+Rules on the big switch are generated after of the traversal for each equivalence class's forwarding graph.
 Preliminary experiment results show that the rules on the abstracted ``big" switch
 can be compactly expressed without loss of forwarding correctness.
-Only one tenth of the forwarding rules and one switch are sufficient to model
+Only one switch and 5000 rules are sufficient to model
 a tree-topology network with 40 switches and 53260 rules.
 The big-switch network can in average speedup simulation by 4.3 times.
-It only takes less than 3.2 seconds for our approach to solve this problem.
+It only takes less than 3.2 seconds for our approach to finish the ``one big switch" transformation.
 \end{abstract}
 
 

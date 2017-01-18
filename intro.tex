@@ -30,15 +30,14 @@ SDN network both logically and physically.
 Inspired by works of~\cite{OneBigSwitchAbstraction},
 we abstract a subset of the networked SDN switches as \textbf{one} big switch.
 The one big switch idea in~\cite{OneBigSwitchAbstraction} abstracts the entire SDN network as
-a big switch so that the network applications just need to programme the network with simple
+a big switch so that the network applications just need to program the network with simple
 endpoint policy, while the controller platform is working in the background to handle
 the low-level issues such as routing policy, switch memory limits and forwarding rule replacements.
 Our idea is to apply the big switch abstraction reversely:
-if the user of network emulation are just interested in the behavior of the packets in
-a snapshot of the network, but not interested in what happened in the bottom of the network,
+if the user of network emulation are only interested in the behavior of the packets at the endpoint of the network, rather than what happened at the bottom,
 for example, hop-by-hop routing rule, memory consumption on the switch, then why don't we
 just create a network with only endpoint policy and emulate it such that packet-level
-fidelity is preserved.
+fidelity is preserved?
 In this case, we can compress the entire set of the SDN switches to single OpenFlow switch.
 
 The obvious benefit is the much less number of switches and/or number of rules existing in the network.
@@ -53,6 +52,9 @@ abstract each subset separately.
 Then we are able to combine multiple ``big switch" components together
 and emulating the size-reduced network.
 
+%About the "incremental update" of the Big Switch, it can be extended in our work since we use VeriFlow. But we haven't implemented it so far.%
+Since the network is constantly being reconfigured to handle the changing requirements and dynamic events, the transformed ``big switch" also need to change correspondingly to enable online simulation/emulation. In stead of transform based on the snapshots taken at each time interval, our approach allow us to incrementally update the big switch so that each time we only need to modify the rules that have been affected by the last network reconfiguration. 
+
 These attractive benefits are only valid when the one-big-switch abstraction preserves
 the forwarding logic in a group of interconnected OpenFlow switches.
 We propose a three-step approach leveraging several existing ideas in SDN community.
@@ -60,7 +62,7 @@ We first classify all the possible packets into equivalence classes by iterating
 the match fields in each rules in the network;
 then we model each class of packet's forwarding actions in the network
 by create forwarding graphs;
-at last, new rules on the big switch will be generated at the end of the 
+at last, new rules on the big switch will be generated after the 
 forwarding graph traversal for each equivalence class
 This three-step process is illustrated in Figure~\ref{Fig:BigSimOverview} and discussed
 in detail in Section~\ref{Sec:Design}.
