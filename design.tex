@@ -33,7 +33,7 @@ The resulting trie will then be three sub-tries concatenated.
 Here we give solutions to two problems that VeriFlow neglected.
 
 \subsubsection{Disjoint EC as Disjoint Intervals}
-By traversing from root node to a leaf node, we can obtain one set of packets
+By traversing from root node to a leaf node, we can obtain a set of packets
 that a rule matches.
 All the leaves thus contains all the packet header values in the network,
 paired as a series of ranges, as $A, B$ and $C$ in Figure~\ref{Fig:DisjointECsAsInterval}.
@@ -108,16 +108,13 @@ $EC \gets \emptyset$\;
 
 \subsubsection{Minimal EC Set}
 The resulting disjoint EC set $ECS$ obtained from Algorithm~\ref{Alg:GenDisjointECs} are unfortunately not the optimal one with minimum size.
-Many ECs can be merged together.
-For example, EC1 and EC3 in section~\ref{Sec:MotivationalExample} can be seen as one EC;
-$EC_2$ and $EC_4$ in Figure~\ref{Fig:DisjointECsAsInterval} can be merged as one EC.
-By the definition of EC, any fixed network device takes identical forwarding action
-for any one of the mergeable ECs, thus we have:
+Many ECs can be merged together according to the definition of ECs.
+For example, $EC_2$ and $EC_4$ in Figure~\ref{Fig:DisjointECsAsInterval} can be merged as one EC, since the packets in both ECs experience the same set of rules throughout the network. It follows that, to generate the correct set of rules on the transformed ``big switch", we only need to model the forwarding behavior of either one of the ECs. In other words, for any two ECs $\alpha$ and $\beta$, we have:
 \begin{lemma}
-$\forall \alpha, \beta \in$ the set of mergeable ECs, $FG(\alpha) \equiv FG(\beta)$.
+$\forall \alpha, \beta $ if $\alpha$ and $\beta$ are mergeable, then $FG(\alpha) \equiv FG(\beta)$.
 \label{Lemma:MergeFG}
 \end{lemma}
-Lemma~\ref{Lemma:MergeFG} suggests that operating on the minimal EC set can
+$FG()$ in Lemma~\ref{Lemma:MergeFG} is a function that maps an EC into a forwarding graph, which will be defined in section \ref{Sec:Generating Forwarding Graphs}. It suggests that operating on the minimal EC set can
 reduce running time in the later phase of generating forwarding graph
 as well as populating final OpenFlow rules.
 Here we provide a solution with its proof.
@@ -181,8 +178,10 @@ we are actually visiting the first ECs in each set $H[key]$, $\forall key \in H$
 
 
 \subsection{Generating Forwarding Graphs}
+\label{Sec:Generating Forwarding Graphs}
+
 In the second stage, we compute forwarding graphs for each EC and
-compress them in order to be used in the next stage.
+compress them in order to be used in the next stage. A forwarding graph is a directed graph that represents how packets are processed by the network. For a specific set of packets (an EC), a node $u$ in the forwarding graph is a devices that the packets encounter in the network, and there is an edge $(u, v)$ in the graph if device $u$ forward the packets to device $v$ in the network. 
 Forwarding graph not only concatenates the forwarding actions of each EC,
 but also visualizes the flow the EC.
 For a fixed EC $x$, we connect the network devices that have rules for $x$
