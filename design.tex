@@ -13,8 +13,9 @@ Equivalence Class (EC) is the set of packets that experience the identical forwa
 \label{Def:EC}
 \end{definition}
 
-\kevin{add to one or two sentences about how to find ECs and how to aggregate ECs before the structure}
-
+%\kevin{add to one or two sentences about how to find ECs and how to aggregate ECs before the structure}
+By its definition, ECs can be found by aggregate forwarding rules on different switches
+and group them by the match field.
 We aggregate forwarding rules using a trie structure as inspired by VeriFlow\cite{Veriflow}. 
 A trie node has three child nodes, i.e., zero, one or wildcard, that represent three possible values for performing a bit-to-bit rule matching.
 The entire tree is composited by several sub-tries, each representing one packet header field. For example, consider the tree-topology network in Section \ref{Sec:MotivatingExample}, the trie only contains one sub-trie representing the $NW\_DST$ header field (i.e., the network destination address). Note that an EC can be defined by multiple fields. For example, we can also match the source address of the packet (e.g., $NW\_SRC$) as well as the service type of the traffic ($TCP\_SRC$). The resulting trie now has three sub-tries.
@@ -26,23 +27,23 @@ By traversing from the root node to a leaf node, we can obtain a set of packets 
 Therefore, the leaves contain all the packet header values in the network, paired as a series of ranges, as $A, B$ and $C$ in Figure~\ref{Fig:DisjointECsAsInterval}.
 These header value ranges are not independent and may overlap with each other.
 Finding the set of disjoint ECs requires us to split this list of ranges $R$ to a list of non-overlapping intervals. The result is a set of disjoint ECs as shown in the upper part of Figure~\ref{Fig:DisjointECsAsInterval}. 
-We develop Algorithm \ref{algo:1} to generate a set of disjoint ECs and show that the generation can be accomplished in $O(N \times M\log M)$ time,
+We develop Algorithm~\ref{Alg:GenDisjointECs} to generate a set of disjoint ECs and show that the generation can be accomplished in $O(N \times M\log M)$ time,
 where $M=|R|$ is the number of intervals and $N$ is the number of header bits.
 % as follows\cite{SplitDisjointInterval}.
 %Not algorithmic described in\cite{Veriflow},
 
 First, we place $R$ into an array $A$ of $2M$ values,
-each flagged as either a start $S$ or an end $E$ of a range.
-\footnote{Equal values with same flag are reduced to an single element.}
-Before iterating $A$, we sort it, breaking the tie by putting $S$ point before $E$ point.
-Then we maintain the difference $d$ between the number of $S$ points and the number of $E$ points
-seen so far, while visit each point in sorted order:
+each flagged as either a start point, or an end point, of a range
+\footnote{Equal values with same flag are reduced to an single element.}.
+Before iterating $A$, we sort it, breaking the tie by putting start point before end point.
+Then we maintain the difference $d$ between the number of seen start points and
+the number of seen end points. While visit each point in sorted order:
 \begin{itemize}
-\item If the current element $x$ is $S$ and $d > 0$,
+\item If the current element $x \in S$ and $d > 0$,
         we end the previous interval with the ending value $x - 1$;
         Start a new interval with a starting value $x$
         (line~\ref{Alg:LineEndStart1}-\ref{Alg:LineEndStart2}).
-\item If the current element $x$ is $E$, we end the previous interval with the ending value $x$.
+\item If the current element $x \in E$, we end the previous interval with the ending value $x$.
         (line~\ref{Alg:LineEndEnd}).
 \item In either case, we update the potential new interval's start value \textit{prev}
         (line~\ref{Alg:LineNewPrev1} and \ref{Alg:LineNewPrev2}).
@@ -57,8 +58,9 @@ The output is the set of the affected ranges, and we need to run Algorithm~\ref{
 \centering
 \includegraphics[scale=.52]{figures/DisjointECs.pdf}
 \caption{A class of packets are abstracted as a range of packet header values.
-        Five equivalence classes can be obtained via splitting three ranges A, B and C.
-        The rules that intersect with each EC is also shown at the bottom.}
+        Five equivalence classes, shown at the top, can be obtained via splitting three ranges A, B and C.
+        Finding $\Delta[EC_x]$, the rules that intersect with EC $x$, is instrumental for
+        merge equivalent ECs, which are shown at the bottom.}
 \label{Fig:DisjointECsAsInterval}
 \end{figure}
 
@@ -84,8 +86,8 @@ $EC \gets \emptyset$\;
                 $cnt \gets cnt - 1$\;
         }
 }
-\caption{Generate Disjoint ECs\label{Alg:GenDisjointECs}}
-\label{algo:1}
+\caption{Generate Disjoint ECs}
+\label{Alg:GenDisjointECs}
 \end{algorithm}
 
 \subsubsection{A Minimal Set of Equivalent Class}
@@ -118,32 +120,39 @@ and $\beta$ may be different, i.e., $\delta' \neq \delta$.
 However, as long as $\delta$ is unique at given $d$, the forwarding behavior at $d$ for both $\alpha$ and $\beta$ are always identical.
 By Definition~\ref{Def:EC}, packets in $\alpha$ and $\beta$ can be merged as one single EC.
 
-We can efficiently find the list of rules $\Delta[\alpha]$ that intersect with EC $\alpha$ using two data structures \kevin{what data structure? trie?}. Each is responsible for one of the two cases \cite{FindIntersectionWiki}.
+We can efficiently find the list of rules $\Delta[\alpha]$ that intersect with EC $\alpha$ using two data structures: an array of pointers and a central interval tree.
+Each of them is responsible for one of the two cases \cite{FindIntersectionWiki}.
 \begin{itemize}
 \item Case 1: Rule $\delta$ intersects $\alpha$ with its starting and/or end point in $\alpha$.
         We can reuse the sorted array $A$ in Algorithm~\ref{Alg:GenDisjointECs}.
-        We augment each value in $A$ with a pointer to the rule that it (\kevin{what does this ``it" refer to?}) belongs to.
-        By doing a binary search, we can find the minimum and maximum values in $A$, which are in the range of $\alpha$.
-        All intervals that intersect with $\alpha$ must be between the minima and maxima.
-        We then perform a linear search in the reduced list of ranges $A'$ (\kevin{$A'$ appears the first time, but not clear how to get $A'$}),
-        check one by one if the interval that value $a\in A'$ belongs to intersects with $\alpha$ (\kevin{Please rephrase this sentence, it is hard to understand}).
+        We augment each value, either a start point or a end point of an range, in $A$
+        with a pointer to the rule that the value belongs to.
+        By doing a binary search, we can find the minimum and maximum values in $A$,
+        which bound the range of $\alpha$.
+        All intervals that intersect with $\alpha$ must be between the minima and maxima,
+        meaning we can ignore two kinds of rules: these whose end point is
+        smaller than minima and these whose start point is larger than maxima.
+        We then perform a linear search in the size-reduced set of rules,
+        check one by one if the range intersects with $\alpha$.
         The total time complexity for both linear search and binary search are $O(\log M + K)$,
         where $K=|\Delta|$ is the number of reported intervals.
-        
 \item Case 2: Rule $\delta$ covers $\alpha$ entirely. We can build
         a central interval tree\cite{ComputationalGeometryBook} using all the available ranges.
         We pick a random value $x \in \alpha$ and query the central interval tree for
-        all the ranges that intersect with $x$, which is done in $O(\log M + K)$ time,
-        at the cost of $O(M log M)$ time for building the central interval tree. 
+        all the ranges that intersect with $x$, which can be done in $O(\log M + K)$ time,
+        at the cost of $O(M log M)$ time for building the central interval tree.
+        Since central interval tree support efficient incremental operations (insertion and deletion),
+        dynamic changes of rule set are also supported.
 \end{itemize}
 
-For each EC $\alpha$, we find the list of intervals $\Delta[\alpha]$
-that intersect with both the interval tree and the ordered list of the boundary values \kevin {value of what?}.
-By mapping each rule to a unique binary ID of length $\log_2 M$,
-we can encode $\Delta[\alpha]$ to a string $C_\alpha$ \kevin{of at most length $M\log_2 M$, putting
-small binary IDs before large ones. (pls rephrase this sentence)}
+Using both the interval tree and ordered list, for each EC $\alpha$,
+we find the list of intervals $\Delta[\alpha]$ that intersect with $\alpha$.
+By mapping each rule $\delta \in \Delta$ to a unique binary ID $c_\delta$ of length $\log_2 M$,
+we can encode $\Delta[\alpha]$ to a string of $c_\delta$s, putting small ID at front.
+This string of unique IDs, named $C_\alpha$, is of at most length $M\log_2 M$.
 We then use a hash table $H$ to group the mergeable ECs by hashing each EC $x$ to $C_x$.
-The minimal size of ECs is the number of unique keys in $H$. Note that in the subsequent algorithmic designs, iterating through all (disjoint) ECs refers to iterating through the first ECs in each set $H[key]$.%, $\forall key \in H$.
+The minimal size of ECs is the number of unique keys in $H$.
+Note that in the subsequent algorithmic designs, iterating through all (disjoint) ECs refers to iterating through the first ECs in each set $H[key]$.%, $\forall key \in H$.
 
 \subsection{Generating Forwarding Graphs}
 \label{Sec:Generating Forwarding Graphs}
@@ -167,9 +176,23 @@ Figure~\ref{Fig:ForwardingGraphECX} depicts the generalized forwarding graph $FG
 
 \subsubsection{Network Traversal for Forwarding Graph Generation}
 
-We develop a forwarding graph generation algorithm as shown in Algorithm~\ref{Alg:GenForwardingGraph}. The notations are defined as follows. $FG(x)$ denotes the forwarding graph for a particular equivalent class x. A \textit{edge switch} is defined as a switch that has at least one link to a node outside $SN$ (\kevin{what is SN? the network that we want to abstract?}). A \textit{non-edge switch} is defined as a switch whose connected nodes are all inside $SN$. The forwarding behavior of the non-edge switches are remove in the big switch abstraction. $src$ denotes the source node of the forwarding path for an EC, and $snk$ denotes the sink node of the forwarding path for an EC. Note that all $src$ in $FG(x)$ are edge switches, and $snk$ in $FG(x)$ can be either edge switches or non-edge switches. $curr$ denotes the current node in the network that we are traversing to generate the forwarding graph. We add a super-source node, $SRC^x$, and a super-sink node, $SNK^x$, as the boundaries of $FG(x)$.
+We develop a forwarding graph generation algorithm as shown in Algorithm~\ref{Alg:GenForwardingGraph}.
+The notations are defined as follows.
+$FG(x)$ denotes the forwarding graph for a particular equivalent class x.
+A \textit{edge switch} is defined as a switch that has at least one link to a node outside $SN$.
+A \textit{non-edge switch} is defined as a switch whose connected nodes are all inside $SN$.
+The forwarding behavior of the non-edge switches are remove in the big switch abstraction.
+$src$ denotes the source node of the forwarding path for an EC,
+and $snk$ denotes the sink node of the forwarding path for an EC.
+Note that all $src$ in $FG(x)$ are edge switches,
+and $snk$ in $FG(x)$ can be either edge switches or non-edge switches.
+$curr$ denotes the current node in the network that we are traversing to generate the forwarding graph.
+We add a super-source node, $SRC^x$, and a super-sink node, $SNK^x$, as the boundaries of $FG(x)$.
 
-Algorithm~\ref{Alg:GenForwardingGraph} is designed to generate $FG(x)$. We start the process from each $src$ that connects to $SRC^x$, and then traverse the topology using depth-first-based-search and follow the action specified in the highest-priority forwarding rule for EC $x$ at each node along the way. 
+Algorithm~\ref{Alg:GenForwardingGraph} is designed to generate $FG(x)$.
+We start the process from each $src$ that connects to $SRC^x$,
+and then traverse EC $x$'s forwarding graph using depth-first-based-search and
+follow the action specified in the highest-priority forwarding rule for EC $x$ at each node along the way. 
 
 %(2) the inner graph may contain both edge and internal switches.
 %Source node $src$ and its out-going edge represent an edge switch $sw$ that forwards EC $x$ \textbf{coming from} port $p$; it can be described by $(sw, p)$ pair. Sink node $snk$ represent the end of the forwarding $sw$, which is also denoted by $(sw, p)$, where $p$ is either the port number specified by the action field or \texttt{NULL} if there is no rule for $x$ on $sw$.
