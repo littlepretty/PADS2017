@@ -1,26 +1,46 @@
 \section{Transformation of an SDN network to an OpenFlow switch}
 \label{Sec:Design}
 
+\begin{comment}
 The overview of our model abstraction approach for SDN networks is shown in Figure~\ref{Fig:BigSimOverview}. Through a three-step systematic process, we are able to take 
 a snapshot of an SDN network $SN$ as the input, transform the network devices in an SDN network to a single OpenFlow switch, $BS$ that preserves the forwarding logic of the original network. In this section, we elaborate the algorithmic design in each step of the model abstraction.
 %We have sketched the process of how to replace a OpenFlow-switch-connected network with a single OpenFlow switch in section~\ref{Sec:MotivationalExample}.
+\end{comment}
 
-\subsection{Finding a Minimal Set of Equivalent Class}
+Our objective is to take a static SDN dataplane configuration (i.e., a snapshot) and transform it to a single ``big switch", which preserves the same end-to-end forwarding behavior. In other words, if a packet originated from a host is forwarded to host in the snapshot, then the packet will be sent to the same destination by the ``big switch". So, the essential task is to (1) identify how every possible packet is processed by the snapshot and (2) correctly configure the ``big switch" so that every packet is processed the same way. We developed a three-step approach to accomplish this task, as shown in Figure \ref{Fig:BigSimOverview}:
+
+\begin{itemize}
+\item Find Equivalence Classes: We borrow the concept of Equivalence Class (EC) from VeriFlow\cite{Veriflow}, which enables us to partition all possible packets in the network into mutually exclusive sets, such that packets belongs to the same set are processed in the same way. ECs are identified according to the match field of \textbf{all} the OpenFlow rules on \textbf{all} the switches in the network.
+\item Traverse Forwarding Graphs: After partitioning the packets into ECs, we study the behavior of each individual EC using the topology information and the switch local information (port mapping, rule priorities, etc), and generate forwarding graphs to represent the behavior.  
+\item Generate OpenFlow Rules: Finally, we generate the OpenFlow rules on the ``big switch" to preserve the same end-to-end behavior. This step includes (1) construct the port-to-host mapping and (2) generate the rules by matching the header of each EC and forward to the correct output port, which is decided by traversing the forwarding graph acquired by the last step.
+\end{itemize}
+
+Our three-step approach is able to correctly transform based on two assumptions. First, although the SDN network contains the control plane and the dateplane, and the configuration of each network devices can be dynamically changed by the controller, we assume the frequency of control messages are far less than the rate of the incoming packets. So between two configuration updates, the dataplane is fixed. Thus we don't need to include the controller into our model abstraction to preserve the forwarding behavior. Second, the packet processing of the SDN devices is assumed to be simple. For example, in this work we assume both the original network and ``big switch" use OpenFlow switches, which apply a simple scheme that is to match the incoming packet to the rule with highest priority and then apply the action of that rule. The simplicity of OpenFlow switches enables us to analyze the behavior of the original network and synthesis the configuration of the ``big switch". We describe each step in detail in the following subsections.
+   
+\subsection{Identifying Equivalent Classes}
+\begin{comment}
 By aggregating and slicing forwarding rules in an SDN network according to ECs, one can obtain a compact representation of the network state in terms of forwarding behavior. 
+\end{comment}
+
+We first give the definition of equivalence class (EC), and then present the data structure and algorithms to partition the packets into ECs in the network.
 
 \begin{definition}
-Equivalence Class (EC) is the set of packets that experience the identical forwarding action at \textbf{any} network device in a network. 
+An equivalence class (EC) is a set of packets that experience the identical forwarding action at \textbf{any} network device in the network. 
 \label{Def:EC}
 \end{definition}
 
+\begin{comment}
 %\kevin{add to one or two sentences about how to find ECs and how to aggregate ECs before the structure}
 By its definition, ECs can be found by aggregate forwarding rules on different switches
 and group them by the match field.
 We aggregate forwarding rules using a trie structure as inspired by VeriFlow\cite{Veriflow}. 
 A trie node has three child nodes, i.e., zero, one or wildcard, that represent three possible values for performing a bit-to-bit rule matching.
 The entire tree is composited by several sub-tries, each representing one packet header field. For example, consider the tree-topology network in Section \ref{Sec:MotivatingExample}, the trie only contains one sub-trie representing the $NW\_DST$ header field (i.e., the network destination address). Note that an EC can be defined by multiple fields. For example, we can also match the source address of the packet (e.g., $NW\_SRC$) as well as the service type of the traffic ($TCP\_SRC$). The resulting trie now has three sub-tries.
-
 %Here we give solutions to two problems that VeriFlow neglected.
+\end{comment}
+
+Each packet is uniquely identified by its header values, According to OpenFlow specification, 
+
 
 \subsubsection{Disjoint Equivalent Classes}
 By traversing from the root node to a leaf node, we can obtain a set of packets that a rule matches.
@@ -92,7 +112,7 @@ $EC \gets \emptyset$\;
 \label{Alg:GenDisjointECs}
 \end{algorithm}
 
-\subsubsection{A Minimal Set of Equivalent Class}
+\subsubsection{Union Equivalent Classes}
 The disjoint EC set $ECS$ obtained from Algorithm~\ref{Alg:GenDisjointECs} are not the optimal one. 
 We can merge some ECs if they represent the identical packet forwarding behavior (see the definition of ECs). 
 For example, $EC_2$ and $EC_4$ in Figure~\ref{Fig:DisjointECsAsInterval} can be merged as one EC, since the packets in both ECs experience the same set of forwarding rules throughout the network. %To generate the correct set of rules on the new ``big switch", we only need to model the forwarding behavior of either one of the ECs. In other words, for any two ECs $\alpha$ and $\beta$, we have:
