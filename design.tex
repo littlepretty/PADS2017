@@ -11,13 +11,13 @@ Our objective is to take a static SDN dataplane configuration (i.e., a snapshot)
 
 \begin{itemize}
 \item Find Equivalence Classes: We borrow the concept of Equivalence Class (EC) from VeriFlow\cite{Veriflow}, which enables us to partition all possible packets in the network into mutually exclusive sets, such that packets belongs to the same set are processed in the same way. ECs are identified according to the match field of \textbf{all} the OpenFlow rules on \textbf{all} the switches in the network.
-\item Traverse Forwarding Graphs: After partitioning the packets into ECs, we study the behavior of each individual EC using the topology information and the switch local information (port mapping, rule priorities, etc), and generate forwarding graphs to represent the behavior.  
+\item Generate Forwarding Graphs: After partitioning the packets into ECs, we study the behavior of each individual EC using the topology information and the switch local information (port mapping, rule priorities, etc), and generate forwarding graphs to represent the behavior.  
 \item Generate OpenFlow Rules: Finally, we generate the OpenFlow rules on the ``big switch" to preserve the same end-to-end behavior. This step includes (1) construct the port-to-host mapping and (2) generate the rules by matching the header of each EC and forward to the correct output port, which is decided by traversing the forwarding graph acquired by the last step.
 \end{itemize}
 
 Our three-step approach is able to correctly transform based on two assumptions. First, although the SDN network contains the control plane and the dateplane, and the configuration of each network devices can be dynamically changed by the controller, we assume the frequency of control messages are far less than the rate of the incoming packets. So between two configuration updates, the dataplane is fixed. Thus we don't need to include the controller into our model abstraction to preserve the forwarding behavior. Second, the packet processing of the SDN devices is assumed to be simple. For example, in this work we assume both the original network and ``big switch" use OpenFlow switches, which apply a simple scheme that is to match the incoming packet to the rule with highest priority and then apply the action of that rule. The simplicity of OpenFlow switches enables us to analyze the behavior of the original network and synthesis the configuration of the ``big switch". We describe each step in detail in the following subsections.
    
-\subsection{Identifying Equivalent Classes}
+\subsection{Identify Equivalent Classes}
 \begin{comment}
 By aggregating and slicing forwarding rules in an SDN network according to ECs, one can obtain a compact representation of the network state in terms of forwarding behavior. 
 \end{comment}
@@ -39,16 +39,23 @@ The entire tree is composited by several sub-tries, each representing one packet
 %Here we give solutions to two problems that VeriFlow neglected.
 \end{comment}
 
-Each packet is uniquely identified by its header values, According to OpenFlow specification, 
+Each packet is uniquely identified by its header field values, which is matched against the forwarding rules in OpenFlow switches to decide the actions. Since the match fields of the OpenFlow rules typically contain wildcard suffix (e.g., longest prefix match of IP source / destination), group of packets with consecutive header values are often processed by the same rules. We use a trie structure, which is originally proposed by VeriFlow\cite{Veriflow}, to maintain the match fields of all the OpenFlow rules collected. As shown in Figure \ref{Fig:Trie}, the trie is composed of several level of sub-tries, each one stands for a match field of the forwarding rules (e.g., $NW\_DST$: network destination address, $NW\_SRC$: network source address, etc.). Each node has three child nodes, i.e., zero, one or wildcard, that represent three possible values for performing a bit-to-bit rule matching in the corresponding field, and a list of rule matadata is stored in the corresponding leaf, including the rule's location, action (forward or drop), priority, etc. 
 
+Having all OpenFlow rules inserted in the trie structure, we perform the following three steps to identify equivalence classes in the network. First, by traversing the trie through paths to the rule lists, we obtain the consecutive header values for each rule list (i.e., a leaf of the trie), as shown in Figure\ref{Fig:Trie}. Then, having a collection of header value intervals, which are denoted by the starting and end values, we develop an algorithm to split them into smaller intervals that contains mutually exclusive values. These non-overlapping intervals identify packets that forms equivalence classes. At last, we combine some of the intervals to form bigger equivalence classes to reduce the time and space complexity for the forwarding graph generation (Section \ref{Sec:Generating Forwarding Graphs}) and rule generation (Section \ref{sec:thirdstep}). The second and third step are described in details below.
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=.35]{figures/trie.pdf}
+\caption{A trie data structure to maintain header values.}
+\label{Fig:Trie}
+\end{figure}
 
 \subsubsection{Disjoint Equivalent Classes}
-By traversing from the root node to a leaf node, we can obtain a set of packets that a rule matches.
-Therefore, the leaves contain all the packet header values in the network,
-paired as a series of ranges\footnote{In this text, the word ``interval" is used interchangeably with ``range"},
-as $A, B$ and $C$ in Figure~\ref{Fig:DisjointECsAsInterval}.
-These header value ranges are not independent and may overlap with each other.
-Finding the set of disjoint ECs requires us to split this list of ranges $R$ to a list of non-overlapping intervals. The result is a set of disjoint ECs as shown in the upper part of Figure~\ref{Fig:DisjointECsAsInterval}. 
+By traversing from the root node to all leaf nodes, we obtain a set of packets header intervals that matched by all the rules. Each interval is represented by a pair of starting and ending values
+%Therefore, the leaves contain all the packet header values in the network,
+%paired as a series of ranges\footnote{In this text, the word ``interval" is used interchangeably with %``range"},
+% Xin: I changed all the "ranges" into "intervals" or "header intervals", since the term "range" has a specific meaning in maths.
+as $A, B$ and $C$ in Figure~\ref{Fig:DisjointECsAsInterval}. Finding the set of disjoint ECs requires us to split this list of ranges $R$ to a list of non-overlapping intervals. The result is a set of disjoint ECs as shown in the upper part of Figure~\ref{Fig:DisjointECsAsInterval}. 
 We develop Algorithm~\ref{Alg:GenDisjointECs} to generate a set of disjoint ECs and show that the generation can be accomplished in $O(N \times M\log M)$ time,
 where $M=|R|$ is the number of intervals and $N$ is the number of header bits.
 % as follows\cite{SplitDisjointInterval}.
@@ -112,7 +119,7 @@ $EC \gets \emptyset$\;
 \label{Alg:GenDisjointECs}
 \end{algorithm}
 
-\subsubsection{Union Equivalent Classes}
+\subsubsection{Combine Equivalent Classes}
 The disjoint EC set $ECS$ obtained from Algorithm~\ref{Alg:GenDisjointECs} are not the optimal one. 
 We can merge some ECs if they represent the identical packet forwarding behavior (see the definition of ECs). 
 For example, $EC_2$ and $EC_4$ in Figure~\ref{Fig:DisjointECsAsInterval} can be merged as one EC, since the packets in both ECs experience the same set of forwarding rules throughout the network. %To generate the correct set of rules on the new ``big switch", we only need to model the forwarding behavior of either one of the ECs. In other words, for any two ECs $\alpha$ and $\beta$, we have:
