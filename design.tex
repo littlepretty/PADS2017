@@ -17,7 +17,7 @@ Our objective is to take a static SDN dataplane configuration (i.e., a snapshot)
 
 Our three-step approach is able to correctly transform based on two assumptions. First, although the SDN network contains the control plane and the dateplane, and the configuration of each network devices can be dynamically changed by the controller, we assume the frequency of control messages are far less than the rate of the incoming packets. So between two configuration updates, the dataplane is fixed. Thus we don't need to include the controller into our model abstraction to preserve the forwarding behavior. Second, the packet processing of the SDN devices is assumed to be simple. For example, in this work we assume both the original network and ``big switch" use OpenFlow switches, which apply a simple scheme that is to match the incoming packet to the rule with highest priority and then apply the action of that rule. The simplicity of OpenFlow switches enables us to analyze the behavior of the original network and synthesis the configuration of the ``big switch". We describe each step in detail in the following subsections.
    
-\subsection{Identify Equivalent Classes}
+\subsection{Identifying Equivalent Classes}
 \begin{comment}
 By aggregating and slicing forwarding rules in an SDN network according to ECs, one can obtain a compact representation of the network state in terms of forwarding behavior. 
 \end{comment}
@@ -50,19 +50,16 @@ Having all OpenFlow rules inserted in the trie structure, we perform the followi
 \label{Fig:Trie}
 \end{figure}
 
-\subsubsection{Disjoint Equivalent Classes}
-By traversing from the root node to all leaf nodes, we obtain a set of packets header intervals that matched by all the rules. Each interval is represented by a pair of starting and ending values
-%Therefore, the leaves contain all the packet header values in the network,
-%paired as a series of ranges\footnote{In this text, the word ``interval" is used interchangeably with %``range"},
+\subsubsection{Splitting Overlapping Intervals}
 % Xin: I changed all the "ranges" into "intervals" or "header intervals", since the term "range" has a specific meaning in maths.
-as $A, B$ and $C$ in Figure~\ref{Fig:DisjointECsAsInterval}. Finding the set of disjoint ECs requires us to split this list of ranges $R$ to a list of non-overlapping intervals. The result is a set of disjoint ECs as shown in the upper part of Figure~\ref{Fig:DisjointECsAsInterval}. 
-We develop Algorithm~\ref{Alg:GenDisjointECs} to generate a set of disjoint ECs and show that the generation can be accomplished in $O(N \times M\log M)$ time,
-where $M=|R|$ is the number of intervals and $N$ is the number of header bits.
+By traversing from the root node to all leaf nodes, we obtain a set of packets header intervals that matched by all the rules. Each interval is represented by a pair of starting and ending values as $A, B$ and $C$ in Figure~\ref{Fig:DisjointECsAsInterval}. Identifying a set of equivalence classes requires us to split this list of intervals $I$ to a list of non-overlapping ones, each of which can be seen as an EC. An example is shown in the upper part of Figure~\ref{Fig:DisjointECsAsInterval}. 
+We develop Algorithm~\ref{Alg:GenDisjointECs} to generate a set of disjoint intervals and show that the generation can be accomplished in $O(N \times M\log M)$ time,
+where $M=|I|$ is the number of intervals and $N$ is the number of header bits.
 % as follows\cite{SplitDisjointInterval}.
 %Not algorithmic described in\cite{Veriflow},
 
-First, we place $R$ into an array $A$ of $2M$ values,
-each flagged as either a start point, or an end point, of a range
+First, we place $I$ into an array $A$ of $2M$ values,
+each flagged as either a start point, or an end point, of an interval
 \footnote{Equal values with same flag are reduced to an single element.}.
 Before iterating $A$, we sort it, breaking the tie by putting start point before end point.
 Then we maintain the difference $d$ between the number of seen start points and
@@ -78,16 +75,16 @@ the number of seen end points. While visit each point in sorted order:
         (line~\ref{Alg:LineNewPrev1} and \ref{Alg:LineNewPrev2}).
 \end{itemize}
 
-Updating forwarding rules in the network will change the EC set.
+Inserting/deleting/modifying forwarding rules in the network will change the EC set.
 By maintaining the rules in a trie, we can efficiently update ECs in an incremental way. An insertion of a new rule requires us to do a depth-first-style trie traverse. This process automatically narrows down the set of affected rules by ignoring those non-overlapping branches with the new rule.
-The output is the set of the affected ranges, and we need to run Algorithm~\ref{Alg:GenDisjointECs} to update ECs only in the affected ranges.
+The output is the set of the affected intervals, and we need to run Algorithm~\ref{Alg:GenDisjointECs} to update ECs only in the affected ones.
 
 
 \begin{figure}[t]
 \centering
 \includegraphics[scale=.52]{figures/DisjointECs.pdf}
-\caption{A class of packets are abstracted as a range of packet header values.
-        Five equivalence classes, shown at the top, can be obtained via splitting three ranges A, B and C.
+\caption{A class of packets are abstracted as an interval of packet header values.
+        Five equivalence classes, shown at the top, can be obtained via splitting three intervals A, B and C.
         Finding $\Delta[EC_x]$, the rules that intersect with EC $x$, is instrumental for
         merge equivalent ECs, which are shown at the bottom.}
 \label{Fig:DisjointECsAsInterval}
@@ -95,10 +92,10 @@ The output is the set of the affected ranges, and we need to run Algorithm~\ref{
 
 \begin{algorithm}[t]
 \DontPrintSemicolon
-\KwData{$R = $ a set of rules from the leaf-node of the trie}
+\KwData{$I = $ a set of packet header intervals from the leaves of the trie}
 \KwResult{$EC = $ a set of equivalence classes as disjoint intervals}
 $cnt \gets 0$\;
-$S = $ \{starting points of $\forall r \in R\}$, $E = $ \{end points of $\forall r \in R\}$\;
+$S = $ \{starting points of $\forall i \in I\}$, $E = $ \{end points of $\forall i \in I\}$\;
 $A \gets Sort(S \bigcup E)$ in non-decreasing order\;
 $EC \gets \emptyset$\;
 \ForEach {$x \in A$} {
@@ -115,58 +112,54 @@ $EC \gets \emptyset$\;
                 $cnt \gets cnt - 1$\;
         }
 }
-\caption{Generate Disjoint ECs}
+\caption{Splitting Overlapping Intervals}
 \label{Alg:GenDisjointECs}
 \end{algorithm}
 
-\subsubsection{Combine Equivalent Classes}
-The disjoint EC set $ECS$ obtained from Algorithm~\ref{Alg:GenDisjointECs} are not the optimal one. 
-We can merge some ECs if they represent the identical packet forwarding behavior (see the definition of ECs). 
-For example, $EC_2$ and $EC_4$ in Figure~\ref{Fig:DisjointECsAsInterval} can be merged as one EC, since the packets in both ECs experience the same set of forwarding rules throughout the network. %To generate the correct set of rules on the new ``big switch", we only need to model the forwarding behavior of either one of the ECs. In other words, for any two ECs $\alpha$ and $\beta$, we have:
+\subsubsection{Combining Equivalent Classes}
+The collection of ECs (i.e., disjoint intervals) obtained from Algorithm~\ref{Alg:GenDisjointECs} are able to be combined. 
+We can union some ECs if they represent the identical packet forwarding behavior (see the definition of ECs). 
+For example, $EC_2$ and $EC_4$ in Figure~\ref{Fig:DisjointECsAsInterval} can be combined as one EC, since the packets in both ECs experience the same set of forwarding rules throughout the network. %To generate the correct set of rules on the new ``big switch", we only need to model the forwarding behavior of either one of the ECs. In other words, for any two ECs $\alpha$ and $\beta$, we have:
 
 \begin{lemma}
-$\forall \alpha, \beta $ if $\alpha$ and $\beta$ are mergeable, then $FG(\alpha) \equiv FG(\beta)$.
+If a packets in EC $\alpha$ and another packet in EC $\beta$ experience the same forwarding actions on all switches, then $\alpha \cup \beta$ is also an EC.
 \label{Lemma:MergeFG}
 \end{lemma}
-$FG()$ in Lemma~\ref{Lemma:MergeFG} is a function that maps an EC into a forwarding graph, which will be defined and illustrated in Section \ref{Sec:Generating Forwarding Graphs}. In fact, using the minimal EC set can significantly reduce the running time in the next two phases: generating forwarding graph and populating final OpenFlow rules. Here we provide a solution, which builds on the following lemma.
+Combining two EC into a big one reduce the running time in the next two phases: generating forwarding graph and populating final OpenFlow rules. Also, the number of the resulting forwarding rules in the ``big switch" can be reduced. Here we provide an approach to identify whether two ECs can be unioned, which is built on the following lemma.
 
 \begin{lemma}
-For any two disjoint ECs $\alpha$ and $\beta$, they are mergeable
-if they intersect with the same set of rules $\Delta$ in the network.
+For any two ECs $\alpha$ and $\beta$, they can be unioned into one EC if the packets have their header values covered by the same set of rules in the network.
 \label{Lemma:MergeEC}
 \end{lemma}
 %According to Lemma~\ref{Lemma:MergeEC}, 
-For example, both $EC_2$ and $EC_4$ intersect with range $B$ and $C$ in Figure~\ref{Fig:DisjointECsAsInterval}, and therefore, we can treat them as one EC.
+For example, both $EC_2$ and $EC_4$ are covered by interval $B$ and $C$ in Figure~\ref{Fig:DisjointECsAsInterval}, and therefore, we can treat them as one EC. The explanation is illustrated below.
 
-If EC $\alpha$ and EC $\beta$ satisfy the condition in Lemma~\ref{Lemma:MergeEC},
-$\alpha$ and $\beta$ are derived from the same set of rules according to Algorithm~\ref{Alg:GenDisjointECs}.
-For any network device $d$, let $\delta \in \Delta$ be the rule on $d$ with the highest priority.
+First, we define a function $\Delta(x)$ that maps an EC $x$ to a set of forwarding rules that have their match field cover the header values of all the packets in $x$. So, if we have $\Delta(\alpha) = \Delta(\beta)$, then, 
+for any network device $d$, let $\delta \in \Delta(\alpha)$ be the rule on $d$ with the highest priority.
 If no such $\delta$ exists, packets from both $\alpha$ and $\beta$ are dropped on $d$.
 Otherwise, packets in both $\alpha$ and $\beta$ match rule $\delta$, and
 device $d$ will forward both of them according to the action specified in $\delta$.
 Note that in another device $d'$, the highest priority rule that covers both $\alpha$
 and $\beta$ may be different, i.e., $\delta' \neq \delta$.
 However, as long as $\delta$ is unique at given $d$, the forwarding behavior at $d$ for both $\alpha$ and $\beta$ are always identical.
-By Definition~\ref{Def:EC}, packets in $\alpha$ and $\beta$ can be merged as one single EC.
 
-We can efficiently find the list of rules $\Delta[\alpha]$ that intersect with EC $\alpha$ using two data structures: an array of pointers and a central interval tree.
-Each of them is responsible for one of the two cases \cite{FindIntersectionWiki}.
+Given an EC, we can efficiently calculate $\Delta(\alpha)$ using two data structures: an array of pointers and a central interval tree.
+Each of them is responsible for one of the two cases according to \cite{FindIntersectionWiki}.
 \begin{itemize}
-\item Case 1: Rule $\delta$ intersects $\alpha$ with its starting and/or end point in $\alpha$.
+\item Case 1: A rule $\delta$ overlaps with an EC $\alpha$ with its starting and/or end point in $\alpha$.
         We can reuse the sorted array $A$ in Algorithm~\ref{Alg:GenDisjointECs}.
-        We augment each value, either a start point or a end point of an range, in $A$
-        with a pointer to the rule that the value belongs to.
+        We augment each value, either a start point or a end point of a interval, in $A$ with a pointer to the rule that the value belongs to.
         By doing a binary search, we can find the minimum and maximum values in $A$,
-        which bound the range of $\alpha$.
-        All intervals that intersect with $\alpha$ must be between the minima and maxima,
+        which bound the interval of $\alpha$.
+        All intervals that overlap with $\alpha$ must be between the minima and maxima,
         meaning we can ignore two kinds of rules: these whose end point is
         smaller than minima and these whose start point is larger than maxima.
         We then perform a linear search in the size-reduced set of rules,
-        check one by one if the range intersects with $\alpha$.
+        check one by one if the interval overlaps with $\alpha$.
         The total time complexity for both linear search and binary search are $O(\log M + K)$,
         where $K=|\Delta|$ is the number of reported intervals.
 \item Case 2: Rule $\delta$ covers $\alpha$ entirely. We can build
-        a central interval tree\cite{ComputationalGeometryBook} using all the available ranges.
+        a central interval tree\cite{ComputationalGeometryBook} using all the available intervals.
         We pick a random value $x \in \alpha$ and query the central interval tree for
         all the ranges that intersect with $x$, which can be done in $O(\log M + K)$ time,
         at the cost of $O(M log M)$ time for building the central interval tree.
@@ -174,21 +167,20 @@ Each of them is responsible for one of the two cases \cite{FindIntersectionWiki}
         dynamic changes of rule set are also supported.
 \end{itemize}
 
-Using both the interval tree and ordered list, for each EC $\alpha$,
-we find the list of intervals $\Delta[\alpha]$ that intersect with $\alpha$.
-By mapping each rule $\delta \in \Delta$ to a unique binary ID $c_\delta$ of length $\log_2 M$,
-we can encode $\Delta[\alpha]$ to a string of $c_\delta$s, putting small ID at front.
+Using interval tree and ordered list, for each EC $\alpha$,
+we find calculate $\Delta(\alpha)$ by mapping each rule $\delta \in \Delta(\alpha)$ to a unique binary ID $c_\delta$ of length $\log_2 M$,
+we can encode $\Delta(\alpha)$ to a string of $c_\delta$s, putting small ID at front.
 This string of unique IDs, named $C_\alpha$, is of at most length $M\log_2 M$.
 We then use a hash table $H$ to group the mergeable ECs by hashing each EC $x$ to $C_x$.
 The minimal size of ECs is the number of unique keys in $H$.
-Note that in the subsequent algorithmic designs, iterating through all (disjoint) ECs refers to iterating through the first ECs in each set $H[key]$.%, $\forall key \in H$.
+Note that in the subsequent algorithmic designs, iterating through all ECs refers to iterating through the first ECs in each set $H[key]$.%, $\forall key \in H$.
 
 \subsection{Generating Forwarding Graphs}
 \label{Sec:Generating Forwarding Graphs}
 
 In the second step, we compute a forwarding graph for each EC, and then effectively reduce the size of the forwarding graph to improve efficiency for the third step. 
 
-A forwarding graph is a directed graph that represents how packets belonging to the same EC are processed by the network. A node $u$ in the forwarding graph is a networking device, and an edge $(u, v)$ in the graph means that device $u$ forwards the packets to device $v$ in the network. 
+First, we define a function $FG(\alpha)$ that maps an EC $\alpha$ to a corresponding forwarding graph. A forwarding graph is a directed graph that represents how packets belonging to the same EC are processed by the network. A node $u$ in the forwarding graph is a networking device, and an edge $(u, v)$ in the graph means that device $u$ forwards the packets to device $v$ in the network. 
 A forwarding graph not only concatenates the forwarding behavior for each EC, but also visualizes the data flow of the EC in the network. 
 %For a fixed EC $x$, we connect the network devices that have rules for $x$ with directed edges that point to the next hop, which is determined by the action field of the rule.
 Since our objective is to abstract the network forwarding logic into a big switch, our end-to-end modeling focuses on the sources and sinks of the graph. 
