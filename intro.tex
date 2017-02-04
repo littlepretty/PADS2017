@@ -2,89 +2,37 @@
 
 % Bring in the issues that our approach can address
 % Describe them as problems in current simulation/emulation systems
-Software defined networking (SDN) explicitly separate the logic of the network
-from the distributed hardware that implementing the forwarding behaviors.
-This centralized scheme have been widely adopted in datacenters networks
-and internet exchange points\cite{B4, Meridian, SDX}.
-However, similar to traditional computer network systems, it is still crucial to do testing
-and evaluating before deployment.
-Consequently researchers in the simulation community have extend various
-traditional network simulators to provide SDN support\cite{S3F, NS3, OPNET}.
-Though network simulation is both reproducible and scalable,
-people are not always confident with its fidelity due to its idealized modelling process.
-In contrast, researcher in SDN community propose container-based emulation that utilize
-shared hardware resources and real network stack to run high-fidelity SDN experiments\cite{Mininet}.
-However, the experiment scale is limited to the resources available on the running machine.
-For example in a traditional tree-topology network with depth 4 and fanout 10,
-we need to start up 1111 switches and 10000 hosts.
-If we want to achieve full connectivity, we need to install at least 399,960,000($\approx$ 4 * 10000 * 9999)
-OpenFlow rules in total.
-Assuming rules only have source IP address, destination IP address, inport number and outport number,
-each rule will consume at least 10 Bytes memory, meaning around 3.72 GB of memory are required to
-emulate this network.
-Such intensive resource requirement are not commonly satisfied by commodity low-end machines.
+
+Software defined networking (SDN) centralizes and simplifies control of network management, and has been increasingly adopted in data centers and internet exchange points\cite{B4, Meridian, SDX}. 
+%Software defined networking (SDN) technology separate the network control logic of the network from the distributed hardware that implementing the forwarding behaviors.
+Similar to traditional computer network systems, it is crucial to perform appropriate testing and evaluation of SDN-based applications before their real system deployment.
+Researchers in the simulation community have extended various existing network simulators to support SDN capability \cite{S3F, NS3, OPNET}. To improve experimental fidelity, researchers have also developed network emulation testbeds that utilizes Linux containers over shared hardware resources and real network stack to run high-fidelity SDN experiments, such as Mininet \cite{Mininet}. However, container-based emulators cannot reproduce correct behaviors of a real network with large network topology and high traffic load because of the limited underlying physical resources. For example, on a commodity machine with 2.98 GHz CPU, 4 GB RAM, and 3 Gbps internal bandwidth, Mininet can only emulate a network up to 30 hosts, each with a 100 MHz CPU and 100 MB RAM and connected by 100 Mb/s links \cite{ReproNetExprCBE}. Therefore, how to increase the SDN testbed scalability and speed without losing the desired fidelity is essential. 
+
+%For example, a tree-topology network with depth 4 and fanout 10 consists of 1111 switches and 10000 hosts. If we want to achieve full connectivity, we need to install at least 399,960,000($\approx$ 4 * 10000 * 9999) OpenFlow rules in total. Assuming rules only have source IP address, destination IP address, inport number and outport number, each rule will consume at least 10 Bytes memory, meaning around 3.72 GB of memory are required to emulate this network. Such intensive resource requirement are not commonly satisfied by commodity low-end machines. 
 
 % State our idea
-In this work we propose to address the scalability issue by simplifying the emulated
-SDN network both logically and physically.
-Inspired by works of~\cite{OneBigSwitchAbstraction},
-we abstract a subset of the networked SDN switches as \textbf{one} big switch.
-The one big switch idea in~\cite{OneBigSwitchAbstraction} abstracts the entire SDN network as
-a big switch so that the network applications just need to program the network with simple
-endpoint policy, while the controller platform is working in the background to handle
-the low-level issues such as routing policy, switch memory limits and forwarding rule replacements.
-Our idea is to apply the big switch abstraction reversely:
-if the user of network emulation are only interested in the behavior of the packets at the endpoint of the network, rather than what happened at the bottom,
-for example, hop-by-hop routing rule, memory consumption on the switch, then why don't we
-just create a network with only endpoint policy and emulate it such that packet-level
-fidelity is preserved?
-In this case, we can compress the entire set of the SDN switches to single OpenFlow switch.
+In this paper, we present a model abstraction technique to transform an SDN-based network model to a ``one big switch" based network model. The idea was inspired by the work on rule placement optimization in \cite{OneBigSwitchAbstraction}. With the highly abstracted network, SDN application developers now only need to consider simple end-to-end policy when programming a network, and are shielded from the details on routing policy, switch memory limits, and distributing rules across switches. Our work applies the idea of one big switch abstraction for enhancing the scalability of network simulation and emulation, while preserving the end-to-end forwarding logic. The technique is useful if users only care about the end-to-end behavior rather than the details within the network, such as hop-by-hop routing, memory consumption on switches. 
 
-The obvious benefit is the much less number of switches and/or number of rules existing in the network.
-For the example mention above, we only need to start up one switch and 10000 hosts.
-On the single switch, we just need to install about 99,990,000 rules, only requiring less than 0.94 GB memory.
-Besides, the abstracted big switch can be used in multiple plug-in-play scenarios.
-For example, researchers can reproduce the simulation result with very
-simple configurations (link connectivity setup, flow table configuration etc.)
-after one complex run on the original network.
-In the case of a too-large-to-simulate network, we can divide it into subsets of switches,
-abstract each subset separately.
-Then we are able to combine multiple ``big switch" components together
-and emulating the size-reduced network.
+We develop a three-step approach to transform an SDN network to a big OpenFlow switch based network, while still preserving the network forwarding logic equivalence. The high-level idea is illustrated in Figure~\ref{Fig:BigSimOverview}, and the details are discussed in Section~\ref{Sec:Design}. We first group all packets into equivalence classes by analyzing the matching fields (e.g., source/destination MAC address/IP address/port, VLAN id, etc.) of the OpenFlow rules installed on the switches. An equivalence class represents a set of packets of the same network forwarding behavior. We then create a graph-based model for each equivalence class to model its packet forwarding behavior. Finally, we traverse all the forwarding graph models to generate rules for the big switch, and the number of rules is largely reduced. This way, we reduce the SDN network to a big-switch-based network to improve the scalability of SDN simulation or emulation.
 
+\begin{figure}[t]
+\centering
+\includegraphics[scale=.6]{figures/BigSimOverview.pdf}
+\caption{Transforming an SDN network to a big OpenFlow switch based network while preserving the network forwarding logic equivalence.}
+\label{Fig:BigSimOverview}
+\end{figure}
+
+The reduction in the number of switches and the number of rules significantly enhances the testbed scalability and scales down the experiment running time. \kevin{may mention some results here.} We can also reuse the abstracted network model. For example, after one complete experimental run of a complex network, users can abstracted (possibly part of) the network, and reproduce the simulation results with a much simpler configuration, including link connectivity and flow tables. We can partition a large-scale network model, and abstract each partition in parallel. By combining those abstracted network models, a testing platform with limited hardware resources now can afford such network simulation/emulation experiments. As the network state evolves, the abstracted big switch model may also need to be frequently updated. Our approach is lightweight. For example, we can reduce 50,000 rules in a large tree-topology network to 5,000 rules in a big-switch-based network in three seconds while preserving the network forwarding rule equivalence. In addition, our approach allows incrementally update the big switch model, i.e., modifying the rules that are only affected by the current network changes. 
+
+%then why don't we just create a network with only endpoint policy and emulate it such that packet-level fidelity is preserved? In this case, we can compress the entire set of the SDN switches to single OpenFlow switch. The benefits is the much less number of switches and/or number of rules existing in the network.
+%For the example mention above, we only need to start up one switch and 10000 hosts. On the single switch, we just need to install about 99,990,000 rules, only requiring less than 0.94 GB memory. 
 %About the "incremental update" of the Big Switch, it can be extended in our work since we use VeriFlow. But we haven't implemented it so far.%
-Since the network is constantly being reconfigured to handle the changing requirements and dynamic events, the transformed ``big switch" also need to change correspondingly to enable online simulation/emulation. In stead of transform based on the snapshots taken at each time interval, our approach allow us to incrementally update the big switch so that each time we only need to modify the rules that have been affected by the last network reconfiguration. 
+In this work, we present a model abstraction technique to reduce networked SDN switches to a one-big-switch model. We mainly focus on preserving the end-to-end network forwarding logic. Our long term goal is to investigate systematic model abstraction approaches that preserves end-to-end performance equivalence as well, such as latency and packet drop, to further enhance the model fidelity. 
 
-These attractive benefits are only valid when the one-big-switch abstraction preserves
-the forwarding logic in a group of interconnected OpenFlow switches.
-We propose a three-step approach leveraging several existing ideas in SDN community.
-We first classify all the possible packets into equivalence classes by iterating through
-the match fields in each rules in the network;
-then we model each class of packet's forwarding actions in the network
-by create forwarding graphs;
-at last, new rules on the big switch will be generated after the 
-forwarding graph traversal for each equivalence class
-This three-step process is illustrated in Figure~\ref{Fig:BigSimOverview} and discussed
-in detail in Section~\ref{Sec:Design}.
-In summary, our contributions include:
-\begin{itemize}
-\item We apply the reversed idea of ``One Big Switch"\cite{OneBigSwitchAbstraction}
-        to SDN network simulation or emulation in order to
-        improve their scalability and reusability.
-\item Built on the idea of equivalence class and forwarding graph, we design
-        a systematic approach to compress all the rules in a SDN network without
-        loss of forwarding logic.
-        For several phases in our approach, we propose corresponding optimization
-        algorithms to reduce the time complexity.
-\item We use a tree-topology SDN network to show that for the largest network scale
-        considered, our approach can compress the 50,000 rules to 5,000 rules in
-        around 3 seconds and still preserve the network forwarding rule equivalence.
-\end{itemize}
+The remainder of this paper is organized as follows. Section  \ref{Sec:MotivatingExample} illustrates the problem and the approach using a simple motivating example. Section \ref{Sec:Design} describes the details of the three-step model abstraction design. Section 4 presents the evaluation results in terms of forwarding logic equivalence, simulation time, reduction in flow rules, and model abstraction execution time. Section \ref{Sec:relatedwork} summarizes the related works, and Section \ref{Sec:conclusion} concludes the paper with future works. 
 
-The ``one big switch" idea is not yet complete only with our contributions in this paper.
-It has the potential to preserve \textbf{packet-level fidelity} and
-can be further extend so as to be used with much more confidence in network
-simulation or emulation.
+
+\if 0
 The precondition is that it needs to abstract the SDN network with two constraints:
 \begin{itemize}
 \item \textbf{Network Forwarding Rule Equivalence.}
@@ -107,18 +55,8 @@ The precondition is that it needs to abstract the SDN network with two constrain
         In other words, queueing delay for packet $p$, $Q(p, T)$, should be an
         function that approximates $\mathcal{Q}(p, T')$.
 \end{itemize}
+\fi
 
-While our long term goal is to propose systematic approaches and algorithms to reduce
-networked SDN switches to one switch that satisfies both network forwarding rule equivalence
-and end-to-end latency equivalence, in this work, we mainly focus on preserving the first one,
-leaving how to preserve end-to-end latency equivalence to future work.
 
-The remainder of this paper is organized as follows. Section 
 
-\begin{figure}[t]
-\centering
-\includegraphics[scale=.6]{figures/BigSimOverview.pdf}
-\caption{Transforming an SDN network to an OpenFlow switch without losing forwarding logic.}
-\label{Fig:BigSimOverview}
-\end{figure}
 

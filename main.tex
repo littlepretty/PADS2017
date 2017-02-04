@@ -176,27 +176,20 @@ Dong Jin\\
 
 \maketitle
 \begin{abstract}
-Software defined network abstracts the forwarding logic of the distributed networking
-system in order to make programming network devices to be centralized, simple and efficient.
-In this work we propose to leverage this paradigm in emulating large scale SDN network.
-Given a snapshot of the SDN powered network,
-we can cluster any number of OpenFlow devices into one virtualized switches
-that preserve packet-level fidelity.
-Emulating the big-switch network has many benefits such as emulation resource reduction,
-larger-scale network support and component reuse.
+
+The software-defined networking (SDN) technology promises centralized and rapid network provisioning, holistic management, low operational cost, and improved network visibility. Researchers have developed multiple SDN simulation and emulation platforms to expedite the adoption of many emerging SDN-based applications to production systems. However, the scalability of those platforms is often limited by the underlying physical hardware resources, which inevitably affects the simulation fidelity in large-scale network settings. In this paper, we present a model abstraction technique that effectively transforms the network devices in an SDN-based network to one virtualized switch model. While significantly enhancing the simulation scalability, our abstracted model also preserves the end-to-end forwarding behavior of the original network. To achieve that, we first classify packets with the same forwarding behavior into smaller and disjoint groups by analyzing the OpenFlow rules installed on the SDN devices. We then create a graph model for each group to represent its forwarding behavior. We traverse those graphs to aggregate the forwarding rules across the network, and finally generate the effective rules for the big switch model. 
+Experimental results demonstrate that the network forwarding logic equivalence is well preserved between the abstracted model and the original SDN network. The model abstraction process is fast, e.g., 3.15 seconds to transform a medium-scale tree network consisting of 53,260 rules. The big-switch model is able to speed up the simulation by 4.3 times in average \kevin {maybe give a range here, or mention average and best case}. 
+
+
+
+
+%Only one switch and 5766 forwarding rules are sufficient to model a tree-topology network with 40 switches and 53260 rules.
+
+%Emulating the big-switch network has many benefits such as emulation resource reduction, larger-scale network support and component reuse.
 %Our long term goal is to abstract the clustered portion of the SDN network so that
 %emulating one OpenFlow switch is equivalent to a great number of interconnected
 %OpenFlow switches in terms of both forwarding logics and network performance metrics.
-In this work we focus on preserving the forwarding logic in a SDN network.
-We slice the packets in a network into equivalence classes, so that packets belong to the same class are processed identically. Then, we perform forwarding graph traversals to efficiently aggregate
-the distributed forwarding rules installed on a group of OpenFlow switches.
-Rules on the big switch are generated after of the traversal for each equivalence class's forwarding graph.
-Preliminary experiment results show that the rules on the abstracted ``big" switch
-can be compactly expressed without loss of forwarding correctness.
-Only one switch and 5766 forwarding rules are sufficient to model
-a tree-topology network with 40 switches and 53260 rules.
-The big-switch network can in average speedup simulation by 4.3 times.
-It only takes less than 3.2 seconds for our approach to finish the ``one big switch" transformation.
+
 \end{abstract}
 
 
@@ -248,8 +241,7 @@ It only takes less than 3.2 seconds for our approach to finish the ``one big swi
 % We no longer use \terms command
 %\terms{Theory}
 
-\keywords{Network Simulation; 	Model Abstraction;
-Software-Defined Networking;}
+\keywords{Network Simulation; 	Model Abstraction; Software-Defined Networking;}
 
 \input{intro}
 \input{example}
