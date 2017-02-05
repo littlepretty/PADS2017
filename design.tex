@@ -1,4 +1,5 @@
-\section{Transformation of an SDN network to an OpenFlow switch}
+%\section{Transformation of an SDN network to an OpenFlow switch}
+\section{SDN Model Abstraction}
 \label{Sec:Design}
 
 \begin{comment}
@@ -7,25 +8,31 @@ a snapshot of an SDN network $SN$ as the input, transform the network devices in
 %We have sketched the process of how to replace a OpenFlow-switch-connected network with a single OpenFlow switch in section~\ref{Sec:MotivationalExample}.
 \end{comment}
 
-Our objective is to take a static SDN dataplane configuration (i.e., a snapshot) and transform it to a single ``big switch", which preserves the same end-to-end forwarding behavior. In other words, if a packet originated from a host is forwarded to host in the snapshot, then the packet will be sent to the same destination by the ``big switch". So, the essential task is to (1) identify how every possible packet is processed by the snapshot and (2) correctly configure the ``big switch" so that every packet is processed the same way. We developed a three-step approach to accomplish this task, as shown in Figure \ref{Fig:BigSimOverview}:
+Our objective is to effectively transform a static SDN data plane configuration (i.e., a snapshot of the network state) to one ``big switch" model, which preserves the same end-to-end forwarding behavior. %In other words, if a packet originated from a host is forwarded to host in the snapshot, then the packet will be sent to the same destination by the ``big switch". 
+To achieve this objective, we need to identify how every packet is processed in the snapshot, and how to correctly configure the big switch model to reflect the identical forwarding logic. In this paper, we develop a three-step model abstraction method, which is summarized as follows.
 
 \begin{itemize}
-\item Find Equivalence Classes: We borrow the concept of Equivalence Class (EC) from VeriFlow\cite{Veriflow}, which enables us to partition all possible packets in the network into mutually exclusive sets, such that packets belongs to the same set are processed in the same way. ECs are identified according to the match field of \textbf{all} the OpenFlow rules on \textbf{all} the switches in the network.
-\item Generate Forwarding Graphs: After partitioning the packets into ECs, we study the behavior of each individual EC using the topology information and the switch local information (port mapping, rule priorities, etc), and generate forwarding graphs to represent the behavior.  
-\item Generate OpenFlow Rules: Finally, we generate the OpenFlow rules on the ``big switch" to preserve the same end-to-end behavior. This step includes (1) construct the port-to-host mapping and (2) generate the rules by matching the header of each EC and forward to the correct output port, which is decided by traversing the forwarding graph acquired by the last step.
+\item \textbf{Identifying Equivalence Classes.} We partition all possible packets in the network into mutually exclusive sets (i.e., equivalence class, as formally defined in Section \ref{ec}), and the packets belongs to the same set are processed in the same way. Those sets are identified according to the matching field of \textbf{all} the OpenFlow rules on \textbf{all} the SDN switches in the original network.
+
+\item \textbf{Creating Forwarding Graphs.} We model the forwarding behavior of each packet set using the topology information as well as the local information stored on SDN switches (e.g., port mapping, rule priorities, etc), and generate a graph-based model to represent the forwarding behavior.  
+\item \textbf{Generating OpenFlow Rules of the Big Switch.} We generate the OpenFlow rules for the big switch in order to preserve the end-to-end forwarding logic. This step includes (1) constructing the port-to-host mapping, (2) generating the rules by matching the packet header of each set,  and (3) forwarding the packet to the correct output port, which is determined by traversing the forwarding graph acquired in step 2.
 \end{itemize}
 
-Our three-step approach is able to correctly transform based on two assumptions. First, although the SDN network contains the control plane and the dateplane, and the configuration of each network devices can be dynamically changed by the controller, we assume the frequency of control messages are far less than the rate of the incoming packets. So between two configuration updates, the dataplane is fixed. Thus we don't need to include the controller into our model abstraction to preserve the forwarding behavior. Second, the packet processing of the SDN devices is assumed to be simple. For example, in this work we assume both the original network and ``big switch" use OpenFlow switches, which apply a simple scheme that is to match the incoming packet to the rule with highest priority and then apply the action of that rule. The simplicity of OpenFlow switches enables us to analyze the behavior of the original network and synthesis the configuration of the ``big switch". We describe each step in detail in the following subsections.
+Our three-step approach has two assumptions. First, the controller can dynamically change the configuration of each network device, but we assume that the frequency of issuing such control messages is far less than the rate of the incoming packets. Between two configuration updates, the data plane remains unchanged. Therefore, we can exclude the SDN controller from the abstracted network model. Second, we do not consider packet header modification actions on the network device. We describe each step in details in the remainder of the section.
+
+%We assume that both the original network and abstracted network use OpenFlow switches, and the switches compare the incoming packet to the installed rule with highest priority and then apply the action of that rule. The simplicity of OpenFlow switches enables us to analyze the behavior of the original network and synthesis the configuration of the ``big switch". 
    
 \subsection{Identifying Equivalent Classes}
+\label{ec}
+
 \begin{comment}
 By aggregating and slicing forwarding rules in an SDN network according to ECs, one can obtain a compact representation of the network state in terms of forwarding behavior. 
 \end{comment}
 
-We first give the definition of equivalence class (EC), and then present the data structure and algorithms to partition the packets into ECs in the network.
+We first give the definition of equivalence class (EC), and then present the data structure and algorithms to partition the packets into ECs.
 
 \begin{definition}
-An equivalence class (EC) is a set of packets that experience the identical forwarding action at \textbf{any} network device in the network. 
+An equivalence class is a set of packets that experience the identical forwarding action at \textbf{any} network device in the network. 
 \label{Def:EC}
 \end{definition}
 
@@ -39,16 +46,18 @@ The entire tree is composited by several sub-tries, each representing one packet
 %Here we give solutions to two problems that VeriFlow neglected.
 \end{comment}
 
-Each packet is uniquely identified by its header field values, which is matched against the forwarding rules in OpenFlow switches to decide the actions. Since the match fields of the OpenFlow rules typically contain wildcard suffix (e.g., longest prefix match of IP source / destination), group of packets with consecutive header values are often processed by the same rules. We use a trie structure, which is originally proposed by VeriFlow\cite{Veriflow}, to maintain the match fields of all the OpenFlow rules collected. As shown in Figure \ref{Fig:Trie}, the trie is composed of several level of sub-tries, each one stands for a match field of the forwarding rules (e.g., $NW\_DST$: network destination address, $NW\_SRC$: network source address, etc.). Each node has three child nodes, i.e., zero, one or wildcard, that represent three possible values for performing a bit-to-bit rule matching in the corresponding field, and a list of rule matadata is stored in the corresponding leaf, including the rule's location, action (forward or drop), priority, etc. 
+Each packet is uniquely identified by its header field values, which are matched against the forwarding rules in the OpenFlow switches to determine the appropriate action. Since the matching fields of the OpenFlow rules typically contain the wildcard suffix (e.g., longest prefix match of IP source/destination addresses), a group of packets with consecutive header values are often processed by the same rule. We use a trie structure, originally proposed by VeriFlow \cite{Veriflow}, to maintain the matching fields of all the OpenFlow rules in the network. The trie is composed of several sub-tries, and each sub-trie stands for a matching field (e.g., source/destination MAC address/IP address/port, etc.). Each node in sub-trie presents one bit in the corresponding matching field, and each node has three edges to the next node (i.e., next bit in the  matching field). The edges represent three possible bit-to-bit rule matching conditions: zero, one, or wildcard (i.e., don't care). The rule metadata are stored in the corresponding leaf node, including the rule's location (switch\#), action (forwarding to an out port or dropping the packet), priority, etc. 
 
-Having all OpenFlow rules inserted in the trie structure, we perform the following three steps to identify equivalence classes in the network. First, by traversing the trie through paths to the rule lists, we obtain the consecutive header values for each rule list (i.e., a leaf of the trie), as shown in Figure\ref{Fig:Trie}. Then, having a collection of header value intervals, which are denoted by the starting and end values, we develop an algorithm to split them into smaller intervals that contains mutually exclusive values. These non-overlapping intervals identify packets that forms equivalence classes. At last, we combine some of the intervals to form bigger equivalence classes to reduce the time and space complexity for the forwarding graph generation (Section \ref{Sec:Generating Forwarding Graphs}) and rule generation (Section \ref{sec:thirdstep}). The second and third step are described in details below.
+Having all the OpenFlow rules inserted in the aforementioned trie structure, we perform the following three steps to identify the equivalence classes in the network. (1) We traverse the trie to obtain the consecutive header values for each rule. (2) After having a collection of header value intervals, which are denoted by the starting and end values, we develop an algorithm to split the existing intervals into smaller and non-overlapping intervals. Each non-overlapping interval identifies the packets belonging to an equivalence class. (3) We merge certain equivalence classes in order to reduce the time and space complexity for the forwarding graph generation (Section \ref{Sec:Generating Forwarding Graphs}) and the big switch rule generation (Section \ref{sec:thirdstep}). The details of second and third steps for EC identification are presented as follows.
 
+\if 0
 \begin{figure}[t]
 \centering
 \includegraphics[scale=.35]{figures/trie.pdf}
 \caption{A trie data structure to maintain header values.}
 \label{Fig:Trie}
 \end{figure}
+\fi 
 
 \subsubsection{Splitting Overlapping Intervals}
 % Xin: I changed all the "ranges" into "intervals" or "header intervals", since the term "range" has a specific meaning in maths.
