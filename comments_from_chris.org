@@ -1,0 +1,26 @@
+* comments
+** abstract
+   + some grammar suggestions
+   + in the evaluation maybe add some more information
+     - 53,260 rules becomes ...
+     - x resources reduced to y
+
+** Introduction
+   + some grammar suggestions
+   + 'big OpenFlow switch' should this be italicied? in the previous paragraph "one big switch" was used with the quotes
+   + "we first group all packets into equiv classes by analyzing the matching fields" -- do you also look at actions?
+   + here you use one-big-switch-model with '-' I think you should consider making all occurences of this the same thoughout the paper
+
+** Motivating Example
+   + can this be changed to just "Motivation"?
+   + Definition of EC is a bit confusing: "set of packets that experience identical forwarding action at \textbf{any} network device" all devices or at each device? And what does it mean 'sets of packets'
+   + SW is not labeled in Figure 4 "SW in Figure 4."
+   + in table 1 you call the network a 3-ary tree network but earlier called it a fat tree network
+
+** SDN Model Abstraction
+   + grammar suggestions
+   + I think this section has a lot of technical details, you might consider adding a appendix or putting a table with all the variable names and descriptions
+
+** Evaluation
+   + may need a \vspace{1mm} below the formula in the first paragraph
+   + the graphs look good

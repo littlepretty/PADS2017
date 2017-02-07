@@ -1,9 +1,6 @@
-\section{Conclusion and Future Works}
+\section{Conclusion and Future Work}
 \label{Sec:conclusion}
 
-We present a three-step model abstraction technique to transform an SDN-based network to a one-big-switch based network without losing the forwarding behavior as defined by the OpenFlow rules in the network devices. 
+We present a three-step model abstraction technique to transform an SDN-based network to a one-big-switch based network without losing the forwarding behavior as defined by the OpenFlow rules in the network devices.
 %We proposed a three-step solution to this abstraction problem. First we slice all the possible packets in the network into equivalence classes. Then we build forwarding graphs for each equivalence class. By traversing forwarding graphs, we can generate new rules to be installed on the big switch.
-Experimental results demonstrate that the big switch abstraction correctly models the end-to-end forwarding logic of the original SDN network, and the abstracted model significantly saves the experiment running time and resources. The ultimate goal of the one-big-switch abstraction is to enhance simulation and emulation scalability while preserving packet-level fidelity. This paper mainly focuses on the end-to-end forwarding logic equivalence, and we will investigate end-to-end performance equivalence, such as latency and packet drop in the future. 
-
-
-
+Experimental results demonstrate that the big switch abstraction correctly models the end-to-end forwarding logic of the original SDN network, and the abstracted model significantly saves the experiment running time and resources. The ultimate goal of the one-big-switch abstraction is to enhance simulation and emulation scalability while preserving packet-level fidelity. This paper mainly focuses on the end-to-end forwarding logic equivalence, and we will investigate end-to-end performance equivalence, such as latency and packet drop in the future.
