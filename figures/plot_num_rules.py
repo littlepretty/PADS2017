@@ -29,8 +29,11 @@ rects1 = ax.bar(scale_tree, tree_rules, width, color='w', hatch='/',
                 label='Tree Topology')
 rects2 = ax.bar(scale_bs, bs_rules, width, color='w', hatch='\\',
                 label='Big Switch')
-print(scale_tree)
-print(scale_bs)
+print(tree_rules)
+print(bs_rules)
+reduction = np.divide(tree_rules - bs_rules, tree_rules)
+print(reduction)
+
 autolabel(rects1)
 autolabel(rects2)
 

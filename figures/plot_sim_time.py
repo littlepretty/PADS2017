@@ -20,6 +20,8 @@ for i in range(0, len(data), 5):
 print(tree_mean)
 print(bs_mean)
 speedup = np.divide(tree_mean, bs_mean)
+reduction = np.divide(tree_mean - bs_mean, tree_mean)
+print(reduction)
 print(speedup)
 print('Avg Speedup = %.4f' % np.mean(speedup))
 
@@ -40,7 +42,7 @@ plt.xticks(ticks, ['(2,3)', '(2,4)', '(3,3)', '(3,4)', '(4,3)'])
 plt.grid(True)
 plt.legend(loc='upper left')
 plt.xlabel('Tree-Topology Network Settings')
-plt.ylabel('Simulation Run Time (Milliseconds)')
+plt.ylabel('Simulation Execution Time (Milliseconds)')
 
 plt.tight_layout()
 # eps format doesn't support transparency

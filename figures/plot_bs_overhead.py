@@ -16,21 +16,21 @@ print(y)
 
 fig, ax = plt.subplots()
 
-# ax.loglog(x, y, linewidth=3.0, marker='>', markersize=10.0)
-# plt.grid(True)
-# plt.xticks(x, ['%d' % i for i in x])
-# plt.xlabel('#Rules Processed')
-# plt.ylabel('Running Time (Milliseconds)')
-
-ax.plot(logx, logy, 'b', linewidth=4.0, label='Overhead Trend')
-width = 0.4
-ax.bar(logx - width/2, logy, width, color='white', hatch='/')
-plt.xticks(logx, ['%.1f' % i for i in logx])
+ax.loglog(x, y, linewidth=3.0, marker='>', markersize=16.0, color='b')
 plt.grid(True)
-plt.xlabel('$\log_2$(Number of Rules Processed)')
-plt.ylabel('$\log_2$(Runtime) (Milliseconds)')
-plt.legend(loc='upper left')
+plt.xticks(x, ['%d' % i for i in x])
+plt.xlabel('#Rules Processed')
+plt.ylabel('Running Time (Milliseconds)')
+# ax.plot(logx, logy, 'b', linewidth=4.0, label='Overhead Trend')
 
+# width = 0.4
+# ax.bar(logx - width/2, logy, width, color='white', hatch='/')
+# plt.xticks(logx, ['%.1f' % i for i in logx])
+# plt.grid(True)
+# plt.xlabel('$\log_2$(Number of Rules Processed)')
+# plt.ylabel('$\log_2$(Running Time) (Milliseconds)')
+
+plt.legend(loc='upper left')
 plt.tight_layout()
 plt.savefig('bs_overhead.eps', fmt='eps')
 plt.show()
