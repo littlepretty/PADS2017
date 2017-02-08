@@ -67,9 +67,7 @@ where $M$ is the number of intervals in $I$, and $N$ is the number of header bit
 % as follows\cite{SplitDisjointInterval}.
 %Not algorithmic described in\cite{Veriflow},
 
-First, we place $I$ into an array $A$ of $2M$ elements. Each element is either a starting point or an end point of an interval. %Note that equal values with same flag are reduced to an single element.
-%Before iterating $A$, we sort it, breaking the tie by putting start point before end point.
-We visit each point in a sorted order, and maintain the difference $d$ between the number of visited starting points and the number of visited end points.
+First, we place $I$ into an array $A$ of $2M$ elements. Each element is either a beginning value or an ending value of an interval. We denote the set of beginning values as $S$ and the set of ending values as $E$. We visit each value $x$ in a sorted order, and maintain the difference $d$ between the number of visited starting points and the number of visited end points.
 \begin{itemize}
 \item If the current element $x \in S$ and $d > 0$,
         we end the previous interval with the ending value $x - 1$;
@@ -80,7 +78,7 @@ We visit each point in a sorted order, and maintain the difference $d$ between t
 \item In either case, we update the potential new interval's starting value \textit{prev}
         (line~\ref{Alg:LineNewPrev1} and \ref{Alg:LineNewPrev2}).
 \end{itemize}
-\kevin{Please define $S$ and $E$, and ``end an interval" or "start an interval" does not sound right to me, usually we start/end an action.}
+%\kevin{Please define $S$ and $E$, and ``end an interval" or "start an interval" does not sound right to me, usually we start/end an action.}
 
 Updating the network forwarding rules will change the EC set.
 By maintaining the rules in a trie, we can efficiently update ECs in an incremental way. An insertion of a new rule requires us to do a depth first traversal. This process automatically narrows down the set of affected rules by ignoring those non-overlapping branches with the new rule.
@@ -99,21 +97,22 @@ The output is the set of affected intervals, and we can run Algorithm~\ref{Alg:G
 \begin{algorithm}[t]
 \DontPrintSemicolon
 \KwData{$I = $ a set of packet header intervals from the leaves of the trie}
-\KwResult{$EC = $ a set of equivalence classes as disjoint intervals} \kevin{$EC$ has special meaning as equivalence class. Please use another symbol.}
+\KwResult{$ECSet = $ a set of disjoint intervals as equivalence classes} 
+%\kevin{$EC$ has special meaning as equivalence class. Please use another symbol.}
 $cnt \gets 0$\;
-$S = $ \{starting points of $\forall i \in I\}$, $E = $ \{end points of $\forall i \in I\}$\;
+$S = $ \{beginning values of $\forall i \in I\}$, $E = $ \{ending values of $\forall i \in I\}$\;
 $A \gets Sort(S \bigcup E)$ in a non-decreasing order\;
 $EC \gets \emptyset$\;
 \ForEach {$x \in A$} {
         \uIf {$x \in S$} {
                 \If {$cnt \neq 0$} {\label{Alg:LineEndStart1}
-                        $EC \gets EC \text{ }\bigcup \text{} [prev, x-1]$\;
+                        $ECSet \gets ECSet \text{ }\bigcup \text{} [prev, x-1]$\;
                 }\label{Alg:LineEndStart2}
                 $prev \gets x$\;\label{Alg:LineNewPrev1}
                 $cnt \gets cnt + 1$\;
         }
         \Else ($x \in E$) {
-                $EC \gets EC \text{ } \bigcup \text{ } [prev, x]$\;\label{Alg:LineEndEnd}
+                $ECSet \gets ECSet \text{ } \bigcup \text{ } [prev, x]$\;\label{Alg:LineEndEnd}
                 $prev \gets x + 1$\;\label{Alg:LineNewPrev2}
                 $cnt \gets cnt - 1$\;
         }
@@ -148,13 +147,13 @@ However, as long as $\delta$ is unique at a given $d$, the forwarding behavior a
 Given an EC, we can efficiently calculate $\Delta(\alpha)$ using two data structures: an array of pointers and a central interval tree.
 Each of them is responsible for one of the two cases specified in \cite{FindIntersectionWiki}.
 \begin{itemize}
-\item Case 1: A rule $\delta$ overlaps with an EC $\alpha$ with its starting and/or end point in $\alpha$.
+\item Case 1: A rule $\delta$ overlaps with an EC $\alpha$ with its beginning and/or ending value in $\alpha$.
         We can reuse the sorted array $A$ in Algorithm~\ref{Alg:GenDisjointECs}.
-        We augment each value, either a starting point or an end point of an interval in $A$ with a pointer to the corresponding rule.
+        We augment each value, either a beginning value or an ending value of an interval in $A$ with a pointer to the corresponding rule.
         By doing a binary search, we can find the minimum and maximum values in $A$,
         which bound the interval of $\alpha$.
         %All intervals that overlap with $\alpha$ must be between the minima and maxima,
-       Therefore, we can ignore two types of rules: the ones with end points smaller than the minima and the ones with starting point larger than the maxima.
+       Therefore, we can ignore two types of rules: the ones with ending values smaller than the minima and the ones with beginning values larger than the maxima.
         We then perform a linear search in the new set of rules, and check one-by-one whether the interval overlaps with $\alpha$.
         The total time complexity for both the linear search and the binary search are $O(\log M + K)$,
         where $K$ is the number of reported intervals in $\Delta(\alpha)$.
@@ -199,8 +198,9 @@ Figure~\ref{Fig:ForwardingGraphECX} depicts the generalized forwarding graph $FG
 We develop a forwarding graph generation algorithm as shown in Algorithm~\ref{Alg:GenForwardingGraph}.
 The notations are defined as follows.
 $FG(x)$ denotes the forwarding graph for a particular equivalence class x.
-A \textit{edge switch} is defined as a switch that has at least one link to a node outside $SN$. \kevin{$SN$ first appeared here, need definition.}
-A \textit{non-edge switch} is defined as a switch with all connected nodes inside $SN$.
+A \textit{edge switch} is defined as a switch that has at least one link to a node located outside of the original network. 
+%\kevin{$SN$ first appeared here, need definition.}
+A \textit{non-edge switch} is defined as a switch with all connected nodes that are inside of the oritinal network.
 The forwarding behavior of the non-edge switches are not considered in the big switch model abstraction.
 Let $src$ and $snk$ denote the source and sink nodes of the forwarding path for an EC.
 Note that all $src$ in $FG(x)$ are edge switches,
