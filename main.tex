@@ -177,10 +177,27 @@ Dong Jin\\
 \maketitle
 \begin{abstract}
 
-Software-defined networking (SDN) technology promises centralized and rapid network provisioning, holistic management, low operational cost, and improved network visibility. Researchers have developed multiple SDN simulation and emulation platforms to expedite the adoption of many emerging SDN-based applications to production systems. However, the scalability of those platforms is often limited by the underlying physical hardware resources, which inevitably affects the simulation fidelity in large-scale network settings. In this paper, we present a model abstraction technique that effectively transforms the network devices in an SDN-based network to one virtualized switch model. While significantly enhancing the simulation scalability, our abstracted model also preserves the end-to-end forwarding behavior of the original network. To achieve this, we first classify packets with the same forwarding behavior into smaller and disjoint groups by analyzing the OpenFlow rules installed on the SDN devices. We then create a graph model for each group representing its forwarding behavior. We traverse those graphs to aggregate the forwarding rules across the network, and finally generate the effective rules for the big switch model.
-Experimental results demonstrate that the network forwarding logic equivalence is well preserved between the abstracted model and the original SDN network. The model abstraction process is fast, e.g., 3.15 seconds to transform a medium-scale tree network consisting of 53,260 rules. The big-switch model is able to speed up the simulation by 4.3 times in average \kevin {maybe give a range here, or mention average and best case}.
-
-
+Software-defined networking (SDN) technology promises centralized and rapid network provisioning,
+holistic management, low operational cost, and improved network visibility.
+Researchers have developed multiple SDN simulation and emulation platforms to expedite
+the adoption of many emerging SDN-based applications to production systems.
+However, the scalability of those platforms is often limited by the underlying physical
+hardware resources, which inevitably affects the simulation fidelity in large-scale network settings.
+In this paper, we present a model abstraction technique that effectively transforms
+the network devices in an SDN-based network to one virtualized switch model.
+While significantly enhancing the simulation scalability,
+our abstracted model also preserves the end-to-end forwarding behavior of the original network.
+To achieve this, we first classify packets with the same forwarding behavior into smaller
+and disjoint groups by analyzing the OpenFlow rules installed on the SDN devices.
+We then create a graph model for each group representing its forwarding behavior.
+We traverse those graphs to aggregate the forwarding rules across the network,
+and finally generate the effective rules for the big switch model.
+Experimental results demonstrate that the network forwarding logic equivalence is well
+preserved between the abstracted model and the original SDN network.
+The model abstraction process is fast, e.g., 3.15 seconds to transform a medium-scale
+tree network consisting of 53,260 rules.
+The big-switch model is able to speed up the simulation by 4.3 times in average and
+6.69 times in best case.
 
 
 %Only one switch and 5766 forwarding rules are sufficient to model a tree-topology network with 40 switches and 53260 rules.

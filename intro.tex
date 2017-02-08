@@ -22,14 +22,36 @@ We develop a three-step approach to transform an SDN network to a big OpenFlow s
 \label{Fig:BigSimOverview}
 \end{figure}
 
-The reduction in the number of switches and the number of rules significantly enhances the testbed scalability and reduces the experiment running time. \kevin{may mention some results here.} We can also reuse the abstracted network model. For example, after one complete experimental run of a complex network, users can abstract (possibly part of) the network, and reproduce the simulation results with a much simpler configuration, including link connectivity and flow tables. We can partition a large-scale network model, and abstract each partition in parallel. By combining those abstracted network models, a testing platform with limited hardware resources now can afford such network simulation/emulation experiments. As the network state evolves, the abstracted big switch model may also need to be frequently updated. Our approach is lightweight. For example, we can reduce 50,000 rules in a large tree-topology network to 5,000 rules in a big-switch-based network in three seconds while preserving the network forwarding rule equivalence. In addition, our approach allows incrementally updating the big switch model, i.e., modifying the rules that are only affected by the current network changes.
+The reduction in the number of switches and the number of rules significantly enhances the testbed scalability and reduces the experiment running time.
+For example, after abstracting a tree-topology network of depth 4 and fanout 3,
+the total number of switches required to simulate is reduced from 40 to 1;
+the number of rules existed in the SDN network can be reduced by a degree of magnitude.
+As for running time, in our evaluation experiments, big-switch-based network model can save about
+75\% to 85\% simulation execution time as compared to the original network.
+We can also reuse the abstracted network model.
+For example, after one complete experimental run of a complex network,
+users can abstract (possibly part of) the network, and reproduce the simulation results with
+a much simpler configuration, including link connectivity and flow tables.
+We can partition a large-scale network model, and abstract each partition in parallel.
+By combining those abstracted network models, a testing platform with limited hardware resources
+now can afford such network simulation/emulation experiments.
+As the network state evolves, the abstracted big switch model may also need to be frequently updated.
+Our approach is lightweight. For example, we can reduce 50,000+ rules in a large tree-topology network
+to 5,000+ rules in a big-switch-based network in three seconds
+while preserving the network forwarding rule equivalence.
+In addition, our approach allows incrementally updating the big switch model,
+i.e., modifying the rules that are only affected by the current network changes.
 
 %then why don't we just create a network with only endpoint policy and emulate it such that packet-level fidelity is preserved? In this case, we can compress the entire set of the SDN switches to single OpenFlow switch. The benefits is the much less number of switches and/or number of rules existing in the network.
 %For the example mention above, we only need to start up one switch and 10000 hosts. On the single switch, we just need to install about 99,990,000 rules, only requiring less than 0.94 GB memory.
 %About the "incremental update" of the Big Switch, it can be extended in our work since we use VeriFlow. But we haven't implemented it so far.%
-In this work, we present a model abstraction technique to reduce networked SDN switches to a one-big-switch model. We mainly focus on preserving the end-to-end network forwarding logic. Our long term goal is to investigate systematic model abstraction approaches that preserve end-to-end performance equivalence as well, such as latency and packet drop, to further enhance the model fidelity.
+In this work, we present a model abstraction technique to reduce networked SDN switches to a one-big-switch model. We mainly focus on preserving the end-to-end network forwarding logic.
+Our long term goal is to investigate systematic model abstraction approaches that preserve end-to-end performance equivalence as well, such as latency and packet drop, to further enhance the model fidelity.
 
-The remainder of this paper is organized as follows. Section  \ref{Sec:MotivatingExample} illustrates the problem and the approach using a simple motivating example. Section \ref{Sec:Design} describes the details of the three-step model abstraction design. Section 4 presents the evaluation results in terms of forwarding logic equivalence, simulation time, reduction in flow rules, and model abstraction execution time. Section \ref{Sec:relatedwork} summarizes the related works, and Section \ref{Sec:conclusion} concludes the paper with future works.
+The remainder of this paper is organized as follows. Section  \ref{Sec:MotivatingExample} illustrates the problem and the approach using a simple motivating example.
+Section \ref{Sec:Design} describes the details of the three-step model abstraction design.
+Section 4 presents the evaluation results in terms of forwarding logic equivalence, simulation time, reduction in flow rules, and model abstraction execution time.
+Section \ref{Sec:relatedwork} summarizes the related works, and Section \ref{Sec:conclusion} concludes the paper with future works.
 
 
 \if 0
