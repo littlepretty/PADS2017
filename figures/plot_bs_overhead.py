@@ -29,6 +29,7 @@ plt.ylabel('Running Time (Milliseconds)')
 # plt.grid(True)
 # plt.xlabel('$\log_2$(Number of Rules Processed)')
 # plt.ylabel('$\log_2$(Running Time) (Milliseconds)')
+plt.gca().get_xticklabels()[-1].set_color('red')
 
 plt.legend(loc='upper left')
 plt.tight_layout()
