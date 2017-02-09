@@ -121,6 +121,72 @@ $EC \gets \emptyset$\;
 \label{Alg:GenDisjointECs}
 \end{algorithm}
 
+\begin{algorithm}[h]
+\DontPrintSemicolon
+\KwIn{$nodes = $ Switches containing rules for EC $x$ \newline
+        $topo = $ Network topology}
+\KwResult{Forwarding graph $FG(x)$ for EC $x$}
+\SetKwProg{Fn}{Function}{}{\KwRet}
+\SetKwFunction{Traverse}{traverse}
+\SetKwFunction{GenRule}{generate\_rules}
+\Fn{\Traverse{$curr$, $src$, $snk$}} {
+        \uIf {$curr$ \upshape is \textbf{NOT} visited} {
+                $r \gets$ \textbf{highest-priority} rule on $curr$ that processes EC $x$\;
+                \If {r \upshape is NULL or $r.action$ is DROP} {\label{Alg:LineDropPath1}
+                        $snk \gets$ ($curr$, NULL)\;
+                        \GenRule{$x, src, snk$}\;
+                        \KwRet\;
+                }\label{Alg:LineDropPath2}
+                $next \gets topo[curr][r.action.outport]$\;
+                \If {next $\not\in$ nodes} {\label{Alg:LineForwardPath1}
+                        $snk \gets$ ($curr$, $r.action.outport$)\;
+                        \GenRule{$x, curr, src, snk$}\;
+                        \KwRet\;
+                }\label{Alg:LineForwardPath2}
+                mark $curr$ as visited\;
+                \Traverse{$next, src, snk$}\;
+        }
+        \Else {
+                report forwarding loop\;\label{Alg:LineLoopPath}
+        }
+}\;
+\ForEach{$n \in$ \upshape neighbors of $SRC^x$} {\label{Alg:LineStartDFS1}
+        \If {\upshape $n$ is \textbf{NOT} visited} {
+                $inport \gets$ input port number from $SRC^x$ to $n$\;
+                \Traverse{$n$, $src=$\upshape($n$, $inport$), $snk=$NULL}\;
+        }
+}\label{Alg:LineStartDFS2}
+\caption{Generating a Forwarding Graph for EC $x$\label{Alg:GenForwardingGraph}}
+\end{algorithm}
+
+\begin{algorithm}[h]
+\DontPrintSemicolon
+\KwData{$PortMap$, which maps a $port$ on $sw$ to a $port$ on the big switch\newline
+        $global\_port$, for port number assignment, and is initialized to 0}
+\KwResult{A new rule $r$ to install on the big switch}
+\SetKwProg{Fn}{Function}{}{\KwRet}
+\SetKwFunction{GenRule}{generate\_rules}
+\Fn{\GenRule{$x, src, dst$}} {
+        $r.match \gets x$\;\label{Alg:LineMatch}
+        \If {src.port $\not\in$ PortMap[src.sw]} {
+                $PortMap[src.sw][src.port] \gets global\_port++$\;
+        }
+        $r.inport = PortMap[src.sw][src.port]$\;\label{Alg:LineInport}
+        \uIf {dst.port \upshape is NULL} {
+                $r.action \gets $ drop\_action\;\label{Alg:LineGenDropRule}
+        }
+        \Else {
+                \If {dst.port $\not\in$ PortMap[dst.sw]} {\label{Alg:LineGenForwardRule1}
+                        $PortMap[dst.sw][dst.port] \gets global\_port++$\;
+                }
+                $r.action \gets $ forward\_action\;
+                $r.action.outport \gets PortMap[dst.sw][dst.port]$\;\label{Alg:LineGenForwardRule2}
+
+        }
+}
+\caption{Generating Forwarding Rules for EC $x$ on the Big Switch Model \label{Alg:GenAllRules}}
+\end{algorithm}
+
 \subsubsection{Combining Equivalence Classes}
 We can further union certain ECs obtained from Algorithm~\ref{Alg:GenDisjointECs}, if they essentially represent identical packet forwarding behavior (see the definition of ECs). For example, $EC_2$ and $EC_4$ in Figure~\ref{Fig:DisjointECsAsInterval} can be combined as one EC, since the packets in both ECs experience the same set of forwarding rules in the network. %To generate the correct set of rules on the new ``big switch", we only need to model the forwarding behavior of either one of the ECs. In other words, for any two ECs $\alpha$ and $\beta$, we have:
 
@@ -231,43 +297,6 @@ Correspondingly, we add an edge from a $snk$ to the super sink $SNK^x$, if the f
 \item the $OUT\_PORT$ field determined by the rule's action on the sink node is an end port.
 \end{enumerate}
 
-\begin{algorithm}[h]
-\DontPrintSemicolon
-\KwIn{$nodes = $ Switches containing rules for EC $x$ \newline
-        $topo = $ Network topology}
-\KwResult{Forwarding graph $FG(x)$ for EC $x$}
-\SetKwProg{Fn}{Function}{}{\KwRet}
-\SetKwFunction{Traverse}{traverse}
-\SetKwFunction{GenRule}{generate\_rules}
-\Fn{\Traverse{$curr$, $src$, $snk$}} {
-        \uIf {$curr$ \upshape is \textbf{NOT} visited} {
-                $r \gets$ \textbf{highest-priority} rule on $curr$ that processes EC $x$\;
-                \If {r \upshape is NULL or $r.action$ is DROP} {\label{Alg:LineDropPath1}
-                        $snk \gets$ ($curr$, NULL)\;
-                        \GenRule{$x, src, snk$}\;
-                        \KwRet\;
-                }\label{Alg:LineDropPath2}
-                $next \gets topo[curr][r.action.outport]$\;
-                \If {next $\not\in$ nodes} {\label{Alg:LineForwardPath1}
-                        $snk \gets$ ($curr$, $r.action.outport$)\;
-                        \GenRule{$x, curr, src, snk$}\;
-                        \KwRet\;
-                }\label{Alg:LineForwardPath2}
-                mark $curr$ as visited\;
-                \Traverse{$next, src, snk$}\;
-        }
-        \Else {
-                report forwarding loop\;\label{Alg:LineLoopPath}
-        }
-}\;
-\ForEach{$n \in$ \upshape neighbors of $SRC^x$} {\label{Alg:LineStartDFS1}
-        \If {\upshape $n$ is \textbf{NOT} visited} {
-                $inport \gets$ input port number from $SRC^x$ to $n$\;
-                \Traverse{$n$, $src=$\upshape($n$, $inport$), $snk=$NULL}\;
-        }
-}\label{Alg:LineStartDFS2}
-\caption{Generating a Forwarding Graph for EC $x$\label{Alg:GenForwardingGraph}}
-\end{algorithm}
 
 
 \subsubsection{Network Traversal Outcomes}
@@ -290,33 +319,6 @@ After running Algorithm~\ref{Alg:GenForwardingGraph}, we can discover three kind
 
 \subsection{Populating Flow Tables on the Big Switch Model}\label{sec:thirdstep}
 
-\begin{algorithm}[htbp]
-\DontPrintSemicolon
-\KwData{$PortMap$, which maps a $port$ on $sw$ to a $port$ on the big switch\newline
-        $global\_port$, for port number assignment, and is initialized to 0}
-\KwResult{A new rule $r$ to install on the big switch}
-\SetKwProg{Fn}{Function}{}{\KwRet}
-\SetKwFunction{GenRule}{generate\_rules}
-\Fn{\GenRule{$x, src, dst$}} {
-        $r.match \gets x$\;\label{Alg:LineMatch}
-        \If {src.port $\not\in$ PortMap[src.sw]} {
-                $PortMap[src.sw][src.port] \gets global\_port++$\;
-        }
-        $r.inport = PortMap[src.sw][src.port]$\;\label{Alg:LineInport}
-        \uIf {dst.port \upshape is NULL} {
-                $r.action \gets $ drop\_action\;\label{Alg:LineGenDropRule}
-        }
-        \Else {
-                \If {dst.port $\not\in$ PortMap[dst.sw]} {\label{Alg:LineGenForwardRule1}
-                        $PortMap[dst.sw][dst.port] \gets global\_port++$\;
-                }
-                $r.action \gets $ forward\_action\;
-                $r.action.outport \gets PortMap[dst.sw][dst.port]$\;\label{Alg:LineGenForwardRule2}
-
-        }
-}
-\caption{Generating Forwarding Rules for EC $x$ on the Big Switch Model \label{Alg:GenAllRules}}
-\end{algorithm}
 
 We develop an algorithm to generate OpenFlow rules on the big switch to abstract the forwarding behavior (see Algorithm~\ref{Alg:GenAllRules}).
 %by calling \texttt{generate\_rules}, as described in Algorithm~\ref{Alg:GenAllRules}.
