@@ -1,15 +1,4 @@
 \section{Evaluation}
-We perform experimental evaluation of our network model abstraction technique
-that transforms an SDN-based network to one big switch.
-The evaluation results show that our approach significantly saves simulation/emulation resources
-(e.g., number of forwarding rules) and simulation execution time,
-while still preserving the forwarding behavior of the original network.
-
-Our experiments simulate and emulate networks of type tree topology.
-The tree network is described by two topological parameters: depth $d$ and fanout $f$.
-Such network $tree(d, f)$ can connect $f^d$ hosts with $\frac{f^d - 1}{f-1}$ switches in total.
-%Though not known as a scalable network architecture (a good scalable alternative will be fat-tree topology), it is good for demonstration purpose since the tree topology is well-structured and
-All end-hosts in a tree network are fully-connected with at most $2d$ hops.
 
 \begin{figure*}[h]
         \centering
@@ -41,8 +30,51 @@ All end-hosts in a tree network are fully-connected with at most $2d$ hops.
         \label{Fig:ComparePingMatrix}
 \end{figure*}
 
+\begin{figure}[h]
+\centering
+\includegraphics[scale=.42]{figures/comp_num_rules.eps}
+\caption{Number of rules needed to preserve the network forwarding logic.
+        The number of rules on the big switch is about 72\% to 89\% less than
+        the number of rules in the original tree-topology network.
+        The x-axis label ($d$, $f$) represents the depth and fanout parameters
+        in a tree topology network.}
+\label{Fig:CompareNumRules}
+\end{figure}
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=.42]{figures/comp_sim_time.eps}
+\caption{Comparison of simulation execution time.
+        The big-switch-based network model saves about 75\% to 85\% running time
+        as compared to simulating the corresponding SDN-based network.
+        The x-axis label ($d$, $f$) represents the depth and fanout parameters in a tree topology network.}
+\label{Fig:CompareSimulationTime}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=.32]{figures/bs_overhead.eps}
+\caption{Execution time to transform an SDN-based network to a big-switch-based network.}
+\label{Fig:BSOverhead}
+\end{figure}
+
 \subsection{Network Forwarding Logic Equivalence}
 \label{SubSec:PreserveForwardingLogic}
+
+
+We perform experimental evaluation of our network model abstraction technique
+that transforms an SDN-based network to one big switch.
+The evaluation results show that our approach significantly saves simulation/emulation resources
+(e.g., number of forwarding rules) and simulation execution time,
+while still preserving the forwarding behavior of the original network.
+
+Our experiments simulate and emulate networks of type tree topology.
+The tree network is described by two topological parameters: depth $d$ and fanout $f$.
+Such network $tree(d, f)$ can connect $f^d$ hosts with $\frac{f^d - 1}{f-1}$ switches in total.
+%Though not known as a scalable network architecture (a good scalable alternative will be fat-tree topology), it is good for demonstration purpose since the tree topology is well-structured and
+All end-hosts in a tree network are fully-connected with at most $2d$ hops.
+
 
 We first demonstrate that the forwarding logic of the original software-defined network is exactly preserved by the abstracted big switch model.
 %One can find the shortest path between a pair of hosts $(s, d)$ with a layer-two learning switch controller application. Traversing the tree up and down in breadth-first-search style, learning switch application can automatically install OpenFlow rules on each hop once we initiate \texttt{ping} between the given pair of host. More specifically,
@@ -139,32 +171,4 @@ we only need to update a small set of rules that are different in the new networ
 %Since the scale of the experiment increases exponentially, we put both x-axis($nr$) and y-axis ($rt$) in binary log scale ($\log_2$).
 %It is clear that our approach scale linearly as the input size increases in the scenario of this tree-topology network.
 
-\begin{figure}[htpb]
-\centering
-\includegraphics[scale=.42]{figures/comp_num_rules.eps}
-\caption{Number of rules needed to preserve the network forwarding logic.
-        The number of rules on the big switch is about 72\% to 89\% less than
-        the number of rules in the original tree-topology network.
-        The x-axis label ($d$, $f$) represents the depth and fanout parameters
-        in a tree topology network.}
-\label{Fig:CompareNumRules}
-\end{figure}
-
-
-\begin{figure}[h]
-\centering
-\includegraphics[scale=.42]{figures/comp_sim_time.eps}
-\caption{Comparison of simulation execution time.
-        The big-switch-based network model saves about 75\% to 85\% running time
-        as compared to simulating the corresponding SDN-based network.
-        The x-axis label ($d$, $f$) represents the depth and fanout parameters in a tree topology network.}
-\label{Fig:CompareSimulationTime}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[scale=.42]{figures/bs_overhead.eps}
-\caption{Execution time to transform an SDN-based network to a big-switch-based network.}
-\label{Fig:BSOverhead}
-\end{figure}
 

@@ -70,8 +70,8 @@ where $M$ is the number of intervals in $I$, and $N$ is the number of header bit
 First, we place $I$ into an array $A$ of $2M$ elements. Each element is either a beginning value or an ending value of an interval. We denote the set of beginning values as $S$ and the set of ending values as $E$. We visit each value $x$ in a sorted order, and maintain the difference $d$ between the number of visited starting points and the number of visited end points.
 \begin{itemize}
 \item If the current element $x \in S$ and $d > 0$,
-        we end the previous interval with the ending value $x - 1$;
-        Start a new interval with a starting value $x$
+        we finish the previous interval with the ending value $x - 1$ and
+        create the next interval with a starting value $x$
         (line~\ref{Alg:LineEndStart1}-\ref{Alg:LineEndStart2}).
 \item If the current element $x \in E$, we end the previous interval with the ending value $x$.
         (line~\ref{Alg:LineEndEnd}).
