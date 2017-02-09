@@ -97,22 +97,23 @@ The output is the set of affected intervals, and we can run Algorithm~\ref{Alg:G
 \begin{algorithm}[t]
 \DontPrintSemicolon
 \KwData{$I = $ a set of packet header intervals from the leaves of the trie}
-\KwResult{$ECSet = $ a set of disjoint intervals as equivalence classes} 
+\KwResult{$D = $ a set of disjoint intervals as equivalence classes} 
 %\kevin{$EC$ has special meaning as equivalence class. Please use another symbol.}
 $cnt \gets 0$\;
-$S = $ \{beginning values of $\forall i \in I\}$, $E = $ \{ending values of $\forall i \in I\}$\;
+$S = $ \{beginning values of $\forall i \in I\}$\;
+$E = $ \{ending values of $\forall i \in I\}$\;
 $A \gets Sort(S \bigcup E)$ in a non-decreasing order\;
-$EC \gets \emptyset$\;
+$D \gets \emptyset$\;
 \ForEach {$x \in A$} {
         \uIf {$x \in S$} {
                 \If {$cnt \neq 0$} {\label{Alg:LineEndStart1}
-                        $ECSet \gets ECSet \text{ }\bigcup \text{} [prev, x-1]$\;
+                        $D \gets D \text{ }\bigcup \text{} [prev, x-1]$\;
                 }\label{Alg:LineEndStart2}
                 $prev \gets x$\;\label{Alg:LineNewPrev1}
                 $cnt \gets cnt + 1$\;
         }
-        \Else ($x \in E$) {
-                $ECSet \gets ECSet \text{ } \bigcup \text{ } [prev, x]$\;\label{Alg:LineEndEnd}
+        \Else {
+                $D \gets D \text{ } \bigcup \text{ } [prev, x]$\;\label{Alg:LineEndEnd}
                 $prev \gets x + 1$\;\label{Alg:LineNewPrev2}
                 $cnt \gets cnt - 1$\;
         }
