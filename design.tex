@@ -8,8 +8,8 @@ a snapshot of an SDN network $SN$ as the input, transform the network devices in
 %We have sketched the process of how to replace a OpenFlow-switch-connected network with a single OpenFlow switch in section~\ref{Sec:MotivationalExample}.
 \end{comment}
 
-Our objective is to effectively transform a static SDN data plane configuration (i.e., a snapshot of the network state) to one ``big switch" model, which preserves the same end-to-end forwarding behavior. %In other words, if a packet originated from a host is forwarded to host in the snapshot, then the packet will be sent to the same destination by the ``big switch".
-To achieve this objective, we need to identify how every packet is processed in the snapshot, and how to correctly configure the big switch model to reflect the identical forwarding logic. In this paper, we develop a three-step model abstraction method, which is summarized as follows.
+Our objective is to effectively transform a static SDN data plane configuration (i.e., a snapshot of the network state) to ``one-big-switch" model, which preserves the same end-to-end forwarding behavior. %In other words, if a packet originated from a host is forwarded to host in the snapshot, then the packet will be sent to the same destination by the ``big switch".
+To achieve this objective, we need to identify how every packet is processed in the snapshot, and how to correctly configure the big-switch model to reflect the identical forwarding logic. In this paper, we develop a three-step model abstraction method, which is summarized as follows.
 
 \begin{itemize}
 \item \textbf{Identifying Equivalence Classes.} We partition all possible packets in the network into mutually exclusive sets (i.e., equivalence class, as formally defined in Section \ref{ec}), and the packets belongs to the same set are processed in the same way. Those sets are identified according to the matching field of \textbf{all} the OpenFlow rules on \textbf{all} the SDN switches in the original network.
@@ -46,9 +46,9 @@ The entire tree is composited by several sub-tries, each representing one packet
 %Here we give solutions to two problems that VeriFlow neglected.
 \end{comment}
 
-Each packet is uniquely identified by its header field values, which are matched against the forwarding rules in the OpenFlow switches to determine the appropriate action. Since the matching fields of the OpenFlow rules typically contain the wildcard suffix (e.g., longest prefix match of IP source/destination addresses), a group of packets with consecutive header values are often processed by the same rule. We use a trie structure, originally proposed by VeriFlow \cite{Veriflow}, to maintain the matching fields of all the OpenFlow rules in the network. The trie is composed of several sub-tries, and each sub-trie stands for a matching field (e.g., source/destination MAC address/IP address/port, etc.). Each node in sub-trie presents one bit in the corresponding matching field, and each node has three edges to the next node (i.e., next bit in the  matching field). The edges represent three possible bit-to-bit rule matching conditions: zero, one, or wildcard (i.e., don't care). The rule metadata are stored in the corresponding leaf node, including the rule's location (switch\#), action (forwarding to an out port or dropping the packet), priority, etc.
+Each packet is uniquely identified by its header field values, which are matched against the forwarding rules in the OpenFlow switches to determine the appropriate action. Since the matching fields of the OpenFlow rules typically contain the wildcard suffix (e.g., longest prefix match of IP source/destination addresses), a group of packets with consecutive header values are often processed by the same rule. We use a trie structure, originally proposed by VeriFlow \cite{Veriflow}, to maintain the matching fields of all the OpenFlow rules in the network. The trie is composed of several sub-tries, and each sub-trie stands for a matching field (e.g., source/destination MAC address/IP address/port, etc.). Each node in sub-trie presents one bit in the corresponding matching field, and each node has three edges to the next node (i.e., next bit in the  matching field). The edges represent three possible bit-to-bit rule matching conditions: zero, one, or wildcard (i.e., don't care). The rule metadata are stored in the corresponding leaf node, including the rule's location (i.e., switch index), action (e.g., forwarding to an out port or dropping the packet), priority, etc.
 
-Having all the OpenFlow rules inserted in the aforementioned trie structure, we perform the following three steps to identify the equivalence classes in the network. (1) We traverse the trie to obtain the consecutive header values for each rule. (2) After having a collection of header value intervals, which are denoted by the starting and end values, we develop an algorithm to split the existing intervals into smaller and non-overlapping intervals. Each non-overlapping interval identifies the packets belonging to an equivalence class. (3) We merge certain equivalence classes in order to reduce the time and space complexity for the forwarding graph generation (Section \ref{Sec:Generating Forwarding Graphs}) and the big switch rule generation (Section \ref{sec:thirdstep}). The details of the second and third steps for EC identification are presented as follows.
+Having all the OpenFlow rules inserted in the aforementioned trie structure, we perform the following three steps to identify the equivalence classes in the network. (1) We traverse the trie to obtain the consecutive header values for each rule. (2) After having a collection of header value intervals, which are denoted by the starting and end values, we develop an algorithm to split the existing intervals into smaller and non-overlapping intervals. Each non-overlapping interval identifies the packets belonging to an equivalence class. (3) We merge certain equivalence classes in order to reduce the time and space complexity for the forwarding graph generation (Section \ref{Sec:Generating Forwarding Graphs}) and the big-switch rule generation (Section \ref{sec:thirdstep}). The details of the second and third steps for EC identification are presented as follows.
 
 \if 0
 \begin{figure}[t]
@@ -70,7 +70,7 @@ where $M$ is the number of intervals in $I$, and $N$ is the number of header bit
 First, we place $I$ into an array $A$ of $2M$ elements. Each element is either a beginning value or an ending value of an interval. We denote the set of beginning values as $S$ and the set of ending values as $E$. We visit each value $x$ in a sorted order, and maintain the difference $d$ between the number of visited starting points and the number of visited end points.
 \begin{itemize}
 \item If the current element $x \in S$ and $d > 0$,
-        we finish the previous interval with the ending value $x - 1$ and
+        we finish processing the previous interval with the ending value $x - 1$ and
         create the next interval with a starting value $x$
         (line~\ref{Alg:LineEndStart1}-\ref{Alg:LineEndStart2}).
 \item If the current element $x \in E$, we end the previous interval with the ending value $x$.
@@ -185,7 +185,7 @@ $D \gets \emptyset$\;
 
         }
 }
-\caption{Generating Forwarding Rules for EC $x$ on the Big Switch Model \label{Alg:GenAllRules}}
+\caption{Generating Forwarding Rules for EC $x$ on the Big-Switch Model \label{Alg:GenAllRules}}
 \end{algorithm}
 
 \subsubsection{Combining Equivalence Classes}
@@ -195,7 +195,7 @@ We can further union certain ECs obtained from Algorithm~\ref{Alg:GenDisjointECs
 If packets in EC $\alpha$ and EC $\beta$ experience the same forwarding actions on all network devices, then $\alpha \cup \beta$ is also an EC.
 \label{Lemma:MergeFG}
 \end{lemma}
-Combining two EC into a single one reduces the running time in the next two phases, i.e., generating the forwarding graph and populating the final OpenFlow rules. The number of the resulting forwarding rules in the ``big switch" can also be reduced. We present the following lemma to identify whether two ECs can be unioned.
+Combining two EC into a single one reduces the running time in the next two phases, i.e., generating the forwarding graph and populating the final OpenFlow rules. The number of the resulting forwarding rules in the big switch can also be reduced. We present the following lemma to identify whether two ECs can be unioned.
 
 \begin{lemma}
 EC $\alpha$ and EC $\beta$ can be unioned into one EC, if both packet header values are covered by the same set of rules in the network.
@@ -268,7 +268,7 @@ $FG(x)$ denotes the forwarding graph for a particular equivalence class x.
 A \textit{edge switch} is defined as a switch that has at least one link to a node located outside of the original network. 
 %\kevin{$SN$ first appeared here, need definition.}
 A \textit{non-edge switch} is defined as a switch with all connected nodes that are inside of the oritinal network.
-The forwarding behavior of the non-edge switches are not considered in the big switch model abstraction.
+The forwarding behavior of the non-edge switches are not considered in the big-switch model abstraction.
 Let $src$ and $snk$ denote the source and sink nodes of the forwarding path for an EC.
 Note that all $src$ in $FG(x)$ are edge switches,
 and $snk$ in $FG(x)$ can be either edge switches or non-edge switches.
@@ -301,7 +301,7 @@ Correspondingly, we add an edge from a $snk$ to the super sink $SNK^x$, if the f
 
 
 \subsubsection{Network Traversal Outcomes}
-After running Algorithm~\ref{Alg:GenForwardingGraph}, we can discover three kinds of ``paths" in $FG(x)$ that are useful for the forwarding rule generation process for the big switch model, i.e., the third step of our model abstraction process (see Section \ref{sec:thirdstep}).
+After running Algorithm~\ref{Alg:GenForwardingGraph}, we can discover three kinds of ``paths" in $FG(x)$ that are useful for the forwarding rule generation process for the big-switch model, i.e., the third step of our model abstraction process (see Section \ref{sec:thirdstep}).
 
 \begin{itemize}
 \item \textbf{Forwarding path} (line~\ref{Alg:LineForwardPath1}-\ref{Alg:LineForwardPath2}).
@@ -318,7 +318,7 @@ After running Algorithm~\ref{Alg:GenForwardingGraph}, we can discover three kind
         %(2) increasing the delay of other packets on the basis of the amount of looping packets
 \end{itemize}
 
-\subsection{Populating Flow Tables on the Big Switch Model}\label{sec:thirdstep}
+\subsection{Populating Flow Tables on the Big-Switch Model}\label{sec:thirdstep}
 
 
 We develop an algorithm to generate OpenFlow rules on the big switch to abstract the forwarding behavior (see Algorithm~\ref{Alg:GenAllRules}).

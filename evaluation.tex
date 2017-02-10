@@ -64,7 +64,7 @@
 
 
 We perform experimental evaluation of our network model abstraction technique
-that transforms an SDN-based network to one big switch.
+that transforms an SDN-based network to one-big-switch model.
 The evaluation results show that our approach significantly saves simulation/emulation resources
 (e.g., number of forwarding rules) and simulation execution time,
 while still preserving the forwarding behavior of the original network.
@@ -76,12 +76,12 @@ Such network $tree(d, f)$ can connect $f^d$ hosts with $\frac{f^d - 1}{f-1}$ swi
 All end-hosts in a tree network are fully-connected with at most $2d$ hops.
 
 
-We first demonstrate that the forwarding logic of the original software-defined network is exactly preserved by the abstracted big switch model.
+We first demonstrate that the forwarding logic of the original software-defined network is exactly preserved by the abstracted big-switch model.
 %One can find the shortest path between a pair of hosts $(s, d)$ with a layer-two learning switch controller application. Traversing the tree up and down in breadth-first-search style, learning switch application can automatically install OpenFlow rules on each hop once we initiate \texttt{ping} between the given pair of host. More specifically,
 We created a tree-topology network $net_1$ in Mininet\cite{Mininet}, and connected all the switches to an SDN controller running a layer-two learning switch application \cite{Pox}. %We generated the network forwarding rules by establishing communication paths between random selected host pairs.
 %For any network host $s$, we randomly generate a list of distinct hosts $dsts$, and let $s$ \texttt{ping} each host $dst \in dsts$.
 After performing the \texttt{ping} tests between randomly selected pairs of end-hosts, the controller application generated all the network forwarding rules and installed them on the switches.
-We then took a snapshot of the network, including (1) the host-to-switch and switch-to-switch connections, and (2) the rules on all the switches using the \texttt{ovs-ofctl dump-flows} command. The snapshot was used to generate the rules for the big switch model as well as the port mapping according to the algorithms presented in Section~\ref{Sec:Design}.
+We then took a snapshot of the network, including (1) the host-to-switch and switch-to-switch connections, and (2) the rules on all the switches using the \texttt{ovs-ofctl dump-flows} command. The snapshot was used to generate the rules for the big-switch model as well as the port mapping according to the algorithms presented in Section~\ref{Sec:Design}.
 
 We then created another emulated network $net_2$ in Mininet, consisting of one OpenFlow switch and the same number of hosts as $net_1$.
 The switch was connected to $f^d$ hosts with the port numbers derived from both the $PortMap$ (Algorithm~\ref{Alg:GenAllRules}) and the link information ($net_1$'s topology).
@@ -162,8 +162,8 @@ For example, it took about 40 milliseconds to abstract a small tree network ($d=
 for a medium-scale medium-scale tree network (depth 4 and fanout 3),
 it took about 3.15 seconds to process 52,660 rules.
 The fast model abstraction execution time is useful.
-As the network state keeps evolving, it is essential to constantly update the abstracted big switch model to reflect the changes, preferably in an online fashion.
-In fact, the three-step approach allows us to incrementally update the big switch model and requires far less execution time, i.e.,
+As the network state keeps evolving, it is essential to constantly update the abstracted big-switch model to reflect the changes, preferably in an online fashion.
+In fact, the three-step approach allows us to incrementally update the big-switch model and requires far less execution time, i.e.,
 we only need to update a small set of rules that are different in the new network snapshot.
 
 %Since the network is constantly being reconfigured to han- dle the changing requirements and dynamic events, the trans- formed “big switch” also need to change correspondingly to enable online simulation/emulation.
