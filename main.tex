@@ -39,6 +39,9 @@
 % *** Fancy Table ***
 \usepackage{multirow}
 
+% *** Highlight changes ***
+\usepackage{color, soul}
+
 \newcommand{\paragraphb}[1]{\vspace{0.03in}\noindent{\bf #1} }
 \newcommand{\paragraphe}[1]{\vspace{0.03in}\noindent{\em #1} }
 \newcommand{\paragraphbe}[1]{\vspace{0.03in}\noindent{\bf \em #1} }
@@ -110,13 +113,10 @@
 % the body of your article BEFORE References or any Appendices.
 
 
-%\begin{comment}
 \numberofauthors{3} %  in this sample file, there are a *total*
 % of EIGHT authors. SIX appear on the 'first-page' (for formatting
 % reasons) and the remaining two appear in the \additionalauthors section.
 %
-
-\if 0 %removed temporarily for double-blinded review
 
 \author{
 % You can go ahead and credit any number of authors here,
@@ -170,9 +170,6 @@ Dong Jin\\
 %       \affaddr{San Antonio, Texas 78229}\\
 %       \email{cpalmer@prl.com}
 }
-\fi
-
-%\end{comment}
 
 \maketitle
 \begin{abstract}
@@ -188,8 +185,8 @@ the network devices in an SDN-based network to one virtualized switch model.
 While significantly enhancing the simulation scalability,
 our abstracted model also preserves the end-to-end forwarding behavior of the original network.
 To achieve this, we first classify packets with the same forwarding behavior into smaller
-and disjoint groups by analyzing the OpenFlow rules installed on the SDN devices.
-We then create a graph model for each group representing its forwarding behavior.
+and disjoint \hl{Equivalence Classes (ECes)} by analyzing the OpenFlow rules installed on the SDN devices.
+\hl{We then create a graph model representing the forwarding behavior of each EC.}
 We traverse those graphs to aggregate the forwarding rules across the network,
 and finally generate the effective rules for the big-switch model.
 Experimental results demonstrate that the network forwarding logic equivalence is well
@@ -266,10 +263,8 @@ The big-switch model is able to speed up the simulation by 4.3 times in average 
 \input{evaluation}
 \input{related_work}
 \input{conclusion}
-
-\if 0 %removed temporarily for double-blinded review
 \input{acknowledgments}
-\fi
+
 
 %\end{document}  % This is where a 'short' article might terminate
 
