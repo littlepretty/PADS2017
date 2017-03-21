@@ -33,8 +33,7 @@ the details within the network, such as hop-by-hop routing, or table lookup on e
 For example, one use case of our technique would be in a hybrid network simulation setting, where the user may want to run a fair large scale diversified
 interconnecting subnetworks consisted of traditional TCP/IP network , SDN network, wireless network,
 industry control communication network, etc.
-SDN component in this scenario may not be the focus and end-to-end behavior is sufficient
-for running such a hybrid networking system. Another scenario could be distributed simulation, in which the network model is shared among multiple users. If the user owning a local network is not willing to expose all fine details of his network to others, he can instead provide a ``one-big-switch" model for them.
+SDN component in this scenario may have less accuracy requirments but more timing requirements if it's not be the focus of the entire simulation. So only maintain the end-to-end behavior is sufficient and beneficial for real-time simulation of such a hybrid networking system. Another scenario could be distributed simulation, in which the network model is shared among multiple users. If the user owning a local network is not willing to expose all fine details of his network to others, he can instead provide a ``one-big-switch" model for them.
 }
 
 We develop a three-step approach to transform an SDN network to a big OpenFlow switch based network,
