@@ -19,7 +19,7 @@ Therefore, increasing SDN testbed scalability and speed without losing the desir
 %For example, a tree-topology network with depth 4 and fanout 10 consists of 1111 switches and 10000 hosts. If we want to achieve full connectivity, we need to install at least 399,960,000($\approx$ 4 * 10000 * 9999) OpenFlow rules in total. Assuming rules only have source IP address, destination IP address, inport number and outport number, each rule will consume at least 10 Bytes memory, meaning around 3.72 GB of memory are required to emulate this network. Such intensive resource requirement are not commonly satisfied by commodity low-end machines.
 
 % State our idea
-In this paper, we present a model abstraction technique to transform an SDN-based network model to a ``one-big-switch" based network model.
+In this paper, we present a model abstraction technique to transform an SDN-based network model to a ``one-big-switch" network model.
 The idea was inspired by the work on rule placement optimization in \cite{OneBigSwitchAbstraction}.
 With the highly abstracted network, SDN application developers now only need to consider
 simple end-to-end policy when programming a network,
@@ -28,14 +28,13 @@ and distributing rules across switches.
 Our work applies the idea of one-big-switch abstraction for enhancing the scalability
 of network simulation and emulation, while preserving the end-to-end forwarding logic.
 The technique is useful if users only care about the end-to-end behavior rather than
-the details within the network, such as hop-by-hop routing, memory consumption on switches.
+the details within the network, such as hop-by-hop routing, or table lookup on each single switch.
 \hl{
-Another use case of our technique would be in a hybrid network simulation setting.
-For example, the user may want to run a fair large scale diversified
+For example, one use case of our technique would be in a hybrid network simulation setting, where the user may want to run a fair large scale diversified
 interconnecting subnetworks consisted of traditional TCP/IP network , SDN network, wireless network,
-industry control communication network etc.
+industry control communication network, etc.
 SDN component in this scenario may not be the focus and end-to-end behavior is sufficient
-for running such a hybrid networking system.
+for running such a hybrid networking system. Another scenario could be distributed simulation, in which the network model is shared among multiple users. If the user owning a local network is not willing to expose all fine details of his network to others, he can instead provide a ``one-big-switch" model for them.
 }
 
 We develop a three-step approach to transform an SDN network to a big OpenFlow switch based network,

@@ -180,9 +180,7 @@ While significantly enhancing the simulation scalability,
 our abstracted model also preserves the end-to-end forwarding behavior of the original network.
 To achieve this, we first classify packets with the same forwarding behavior into smaller
 and disjoint \hl{Equivalence Classes (ECes)} by analyzing the OpenFlow rules installed on the SDN devices.
-\hl{We then create a graph model representing the forwarding behavior of each EC.}
-We traverse those graphs to aggregate the forwarding rules across the network,
-and finally generate the effective rules for the big-switch model.
+\hl{We then create a graph model representing the forwarding behavior of each EC. By traversing those graphs we finally construct the rules on the big-switch model that preserve the original network's end-to-end forwarding effects.}
 Experimental results demonstrate that the network forwarding logic equivalence is well
 preserved between the abstracted model and the original SDN network.
 The model abstraction process is fast, e.g., 3.15 seconds to transform a medium-scale
