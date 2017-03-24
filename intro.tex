@@ -31,22 +31,10 @@ of network simulation and emulation, while preserving the end-to-end forwarding 
 This technique is useful if users only care about the end-to-end behavior rather than
 the details within the network, such as hop-by-hop routing, or table lookup on each single switch.
 \hl{
-For example, one use case of our technique would be in a hybrid network simulation setting, where the user may want to run a fair large scale diversified
-interconnecting subnetworks consisted of traditional TCP/IP network , SDN network, wireless network,
-industry control communication network, etc.
-SDN component in this scenario may not be the focus of the users' and
-maintaining only the end-to-end behavior is sufficient for running the hybrid experiment.
-Faster running time of the abstracted model is also beneficial for
-real-time simulation in which some part(s) of the target network is emulated for higher fidelity.
-Another scenario could be distributed simulation where the target network is composed of
-several sub-networks owned by different parties and models of sub-networks
-are shared among multiple parties.
-If an user owning a local network is not willing to expose fine details of
-her network to others for privacy and security reasons,
-she can instead run our method on the target network and
-share the resulting ``one-big-switch" model with her collaborators.
-}
-
+For example, users may want to simulate a large-scale complex network of networks consisting of traditional TCP/IP networks, SDN networks, industry control communication networks, etc. The SDN components in this scenario may not be the focus, and thus maintaining only the end-to-end behavior is sufficient for running the hybrid experiment.
+Our technique is also useful for real-time network simulation, in which models must be executed no slower than the wall-clock time in order to interact with real implementations of network protocols and applications. Failing to do so may result in temporal faults, i.e., the simulation fails to process events before the designated deadlines required by the emulation or physical components. 
+%Another scenario could be distributed simulation where the target network is composed of several sub-networks owned by different parties and models of sub-networks are shared among multiple parties.
+In addition, industrial collaborators may not want to disclose the details of their production network (e.g., topology, routing, middle-box location and functionality) to modelers for privacy and security concerns. They can use our model abstraction techniques on the target network and share the resulting ``one-big-switch" model.}
 We develop a three-step approach to transform an SDN network to a big OpenFlow switch based network,
 while still preserving the network forwarding logic equivalence.
 The high-level idea is illustrated in Figure~\ref{Fig:BigSimOverview},

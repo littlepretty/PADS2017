@@ -78,10 +78,12 @@ All end-hosts in a tree network are fully-connected with at most $2d$ hops.
 
 We first demonstrate that the forwarding logic of the original software-defined network is exactly preserved by the abstracted big-switch model.
 %One can find the shortest path between a pair of hosts $(s, d)$ with a layer-two learning switch controller application. Traversing the tree up and down in breadth-first-search style, learning switch application can automatically install OpenFlow rules on each hop once we initiate \texttt{ping} between the given pair of host. More specifically,
+\if 0
 \hl{
 Since the production SDN network snapshot, including topology connections and rules installed on
 individual switches, are not easy to obtain, our demonstration is based on the following plausible setup.
 }
+\fi
 We created a tree-topology network $net_1$ in Mininet\cite{Mininet}, and connected all the switches to an SDN controller running a layer-two learning switch application \cite{Pox}. %We generated the network forwarding rules by establishing communication paths between random selected host pairs.
 %For any network host $s$, we randomly generate a list of distinct hosts $dsts$, and let $s$ \texttt{ping} each host $dst \in dsts$.
 After performing the \texttt{ping} tests between randomly selected pairs of end-hosts, the controller application generated all the network forwarding rules and installed them on the switches.
