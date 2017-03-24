@@ -8,8 +8,10 @@ defined by the OpenFlow rules in the network devices.
 Experimental results demonstrate that the big-switch abstraction correctly models
 the end-to-end forwarding logic of the original SDN network,
 and the abstracted model significantly saves the experiment running time and system resources.
-
 The ultimate goal of the one-big-switch abstraction is to enhance simulation and emulation scalability while preserving packet-level fidelity.
+This paper mainly focuses on the end-to-end for- warding logic equivalence, and we will investigate end-to-end performance equivalence, such as latency and packet drop in the future.
+
+\if 0
 \hl{
 While this paper mainly focuses on the end-to-end forwarding logic equivalence,
 we also proceeded to investigate the performance equivalence,
@@ -18,3 +20,4 @@ The basic idea is to collect the statistical information from the OpenFlow table
 and analyze the random process of packet processing for each flow using queueing models.
 Further details will be illustrated in future works.
 }
+\fi
