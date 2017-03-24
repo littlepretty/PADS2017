@@ -46,5 +46,5 @@ plt.ylabel('Simulation Execution Time (Milliseconds)')
 
 plt.tight_layout()
 # eps format doesn't support transparency
-plt.savefig('comp_sim_time.eps', fmt='eps')
+plt.savefig('comp_sim_time.pdf', fmt='pdf')
 plt.show()

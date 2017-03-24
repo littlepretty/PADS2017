@@ -21,6 +21,7 @@ plt.grid(True)
 plt.xticks(x, ['%d' % i for i in x])
 plt.xlabel('#Rules Processed')
 plt.ylabel('Running Time (Milliseconds)')
+ax.set_xlim([270, 60000])
 # ax.plot(logx, logy, 'b', linewidth=4.0, label='Overhead Trend')
 
 # width = 0.4
@@ -33,4 +34,5 @@ plt.ylabel('Running Time (Milliseconds)')
 plt.legend(loc='upper left')
 plt.tight_layout()
 # plt.savefig('bs_overhead.eps', fmt='eps')
+plt.savefig('bs_overhead.pdf', fmt='pdf')
 plt.show()

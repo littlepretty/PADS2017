@@ -30,7 +30,6 @@ view: all
 	$(VIEWER) $(FILE_NAME).pdf
 	rm *.log *.aux *.out *.blg *.bbl
 	#rm *-eps-converted-to.pdf
-	#pdffonts main.pdf
-
+	pdffonts main.pdf
 clean:
 	rm *.log *.aux *.dvi *.out *.blg *.bbl *.ps *.bak

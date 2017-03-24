@@ -46,5 +46,5 @@ plt.ylabel('Total Number of Rules')
 
 plt.tight_layout()
 # eps format doesn't support transparency
-plt.savefig('comp_num_rules.eps', fmt='eps')
+plt.savefig('comp_num_rules.pdf', fmt='pdf')
 plt.show()
