@@ -28,7 +28,7 @@ all:
 
 view: all
 	$(VIEWER) $(FILE_NAME).pdf
-	rm *.log *.aux *.out *.blg *.bbl
+	rm *.log *.aux *.out *.blg
 	#rm *-eps-converted-to.pdf
 	pdffonts main.pdf
 clean:

@@ -176,11 +176,13 @@ However, the scalability of those platforms is often limited by the underlying p
 hardware resources, which inevitably affects the simulation fidelity in large-scale network settings.
 In this paper, we present a model abstraction technique that effectively transforms
 the network devices in an SDN-based network to one virtualized switch model.
-While significantly \hl{reducing the model execution time and enabling the real-time simulation capability,}
+While significantly reducing the model execution time and enabling the real-time simulation capability,
 our abstracted model also preserves the end-to-end forwarding behavior of the original network.
 To achieve this, we first classify packets with the same forwarding behavior into smaller
-and disjoint \hl{Equivalence Classes (ECes)} by analyzing the OpenFlow rules installed on the SDN devices.
-\hl{We then create a graph model representing the forwarding behavior of each EC. By traversing those graphs, we finally construct the rules of the big-switch model to effectively preserve the original network's end-to-end forwarding behavior.}
+and disjoint Equivalence Classes (ECes) by analyzing the OpenFlow rules installed on the SDN devices.
+We then create a graph model representing the forwarding behavior of each EC.
+By traversing those graphs, we finally construct the rules of the big-switch model to
+effectively preserve the original network's end-to-end forwarding behavior.
 Experimental results demonstrate that the network forwarding logic equivalence is well
 preserved between the abstracted model and the original SDN network.
 The model abstraction process is fast, e.g., 3.15 seconds to transform a medium-scale
@@ -207,42 +209,35 @@ The big-switch model is able to speed up the simulation by 4.3 times in average 
 \begin{comment}
 \begin{CCSXML}
 <ccs2012>
- <concept>
-  <concept_id>10010520.10010553.10010562</concept_id>
-  <concept_desc>Computer systems organization~Embedded systems</concept_desc>
-  <concept_significance>500</concept_significance>
- </concept>
- <concept>
-  <concept_id>10010520.10010575.10010755</concept_id>
-  <concept_desc>Computer systems organization~Redundancy</concept_desc>
-  <concept_significance>300</concept_significance>
- </concept>
- <concept>
-  <concept_id>10010520.10010553.10010554</concept_id>
-  <concept_desc>Computer systems organization~Robotics</concept_desc>
-  <concept_significance>100</concept_significance>
- </concept>
- <concept>
-  <concept_id>10003033.10003083.10003095</concept_id>
-  <concept_desc>Networks~Network reliability</concept_desc>
-  <concept_significance>100</concept_significance>
- </concept>
+<concept>
+<concept_id>10003033.10003079.10003081</concept_id>
+<concept_desc>Networks~Network simulations</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010147.10010341.10010342.10010343</concept_id>
+<concept_desc>Computing methodologies~Modeling methodologies</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010147.10010341.10010366.10010369</concept_id>
+<concept_desc>Computing methodologies~Simulation tools</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
 </ccs2012>
 \end{CCSXML}
 
-\ccsdesc[500]{Computer systems organization~Embedded systems}
-\ccsdesc[300]{Computer systems organization~Redundancy}
-\ccsdesc{Computer systems organization~Robotics}
-\ccsdesc[100]{Networks~Network reliability}
-
+\ccsdesc[500]{Networks~Network simulations}
+\ccsdesc[500]{Computing methodologies~Modeling methodologies}
+\ccsdesc[300]{Computing methodologies~Simulation tools}
 %
 % End generated code
 %
-\end{comment}
 %
 %  Use this command to print the description
 %
-%\printccsdesc
+\printccsdesc
+\end{comment}
 
 % We no longer use \terms command
 %\terms{Theory}
