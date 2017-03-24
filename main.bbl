@@ -1,0 +1,140 @@
+\begin{thebibliography}{10}
+
+\bibitem{Estinet}
+Estinet.
+\newblock \url{http://www.estinet.com/}.
+\newblock Accessed: 2016-12-31.
+
+\bibitem{FindIntersectionWiki}
+Interval tree.
+\newblock \url{https://en.wikipedia.org/wiki/Interval_tree#With_an_interval}.
+\newblock Accessed: 2016-12-20.
+
+\bibitem{NS3}
+ns-3.
+\newblock \url{https://www.nsnam.org}.
+\newblock Accessed: 2016-12-29.
+
+\bibitem{OPNET}
+Software defined network {OPNET} simulation {SDN}.
+\newblock \url{https://www.youtube.com/watch?v=MPpu8blePfc}.
+\newblock Accessed: 2016-12-29.
+
+\bibitem{Pox}
+{The POX controller}.
+\newblock \url{https://github.com/noxrepo/pox}.
+\newblock Accessed: 2016-12-31.
+
+\bibitem{Al-Shaer2010}
+E.~Al-Shaer and S.~Al-Haj.
+\newblock {FlowChecker: Configuration} analysis and verification of federated
+  {OpenFlow} infrastructures.
+\newblock In {\em Proc. of the 3rd ACM Workshop on Assurable and Usable
+  Security Configuration (SafeConfig)}, pages 37--44, 2010.
+
+\bibitem{Al-Shaer2009}
+E.~Al-Shaer, W.~Marrero, A.~El-Atawy, and K.~ElBadawi.
+\newblock {Network configuration in a box: Towards} end-to-end verification of
+  network reachability and security.
+\newblock In {\em Proc. of the 17th IEEE International Conference on Network
+  Protocols (ICNP)}, pages 123--132, 2009.
+
+\bibitem{Meridian}
+M.~Banikazemi, D.~Olshefski, A.~Shaikh, J.~Tracey, and G.~Wang.
+\newblock Meridian: an {SDN} platform for cloud network services.
+\newblock {\em IEEE Communications Magazine}, 51(2):120--127, February 2013.
+
+\bibitem{OpenNet}
+M.~C. Chan, C.~Chen, J.~X. Huang, T.~Kuo, L.~H. Yen, and C.~C. Tseng.
+\newblock {OpenNet: A} simulator for software-defined wireless local area
+  network.
+\newblock In {\em Proceedings of the 2014 IEEE Wireless Communications and
+  Networking Conference (WCNC)}, pages 3332--3336, April 2014.
+
+\bibitem{ComputationalGeometryBook}
+M.~de~Berg, O.~Cheong, M.~van Kreveld, and M.~Overmars.
+\newblock Interval tree.
+\newblock {\em Computational Geometry}, pages 220--226, 2008.
+
+\bibitem{SDX}
+A.~Gupta, L.~Vanbever, M.~Shahbaz, S.~P. Donovan, B.~Schlinker, N.~Feamster,
+  J.~Rexford, S.~Shenker, R.~Clark, and E.~Katz-Bassett.
+\newblock {SDX: A} software defined internet exchange.
+\newblock In {\em Proceedings of ACM SIGCOMM}, pages 551--562, 2014.
+
+\bibitem{FSSDN}
+M.~Gupta, J.~Sommers, and P.~Barford.
+\newblock Fast, accurate simulation for sdn prototyping.
+\newblock In {\em Proceedings of the Second ACM SIGCOMM Workshop on Hot Topics
+  in Software Defined Networking}, HotSDN '13, pages 31--36, New York, NY, USA,
+  2013. ACM.
+
+\bibitem{Mininet}
+N.~Handigol, B.~Heller, V.~Jeyakumar, B.~Lantz, and N.~McKeown.
+\newblock Reproducible network experiments using container-based emulation.
+\newblock In {\em Proceedings of the 8th International Conference on Emerging
+  Networking Experiments and Technologies}, CoNEXT '12, pages 253--264, New
+  York, NY, USA, 2012. ACM.
+
+\bibitem{ReproNetExprCBE}
+N.~Handigol, B.~Heller, V.~Jeyakumar, B.~Lantz, and N.~McKeown.
+\newblock Reproducible network experiments using container-based emulation.
+\newblock In {\em Proceedings of the 8th International Conference on Emerging
+  Networking Experiments and Technologies}, pages 253--264, New York, NY, USA,
+  December 2012. ACM.
+
+\bibitem{B4}
+S.~Jain, A.~Kumar, S.~Mandal, J.~Ong, L.~Poutievski, A.~Singh, S.~Venkata,
+  J.~Wanderer, J.~Zhou, M.~Zhu, J.~Zolla, U.~H\"{o}lzle, S.~Stuart, and
+  A.~Vahdat.
+\newblock B4: Experience with a globally-deployed software defined wan.
+\newblock In {\em Proceedings of ACM SIGCOMM}, pages 3--14, 2013.
+
+\bibitem{S3F_website}
+D.~Jin, Y.~Zheng, and D.~Nicol.
+\newblock {S3F/S3FNet: S}impler scalable simulation framework. {University of
+  Illinois at Urbana-Champaign}.
+\newblock \url{https://s3f.iti.illinois.edu/}, 2013.
+
+\bibitem{OneBigSwitchAbstraction}
+N.~Kang, Z.~Liu, J.~Rexford, and D.~Walker.
+\newblock Optimizing the ``one big switch" abstraction in software-defined
+  networks.
+\newblock In {\em Proceedings of the Ninth ACM Conference on Emerging
+  Networking Experiments and Technologies}, CoNEXT '13, pages 13--24, New York,
+  NY, USA, 2013. ACM.
+
+\bibitem{NetPlumber2013}
+P.~Kazemian, M.~Chang, H.~Zeng, G.~Varghese, N.~McKeown, and S.~Whyte.
+\newblock Real time network policy checking using header space analysis.
+\newblock In {\em Proceedings of the 10th USENIX Conference on Networked
+  Systems Design and Implementation}, NSDI'13, pages 99--112, Berkeley, CA,
+  USA, 2013. USENIX Association.
+
+\bibitem{Veriflow}
+A.~Khurshid, X.~Zou, W.~Zhou, M.~Caesar, and P.~B. Godfrey.
+\newblock Veriflow: Verifying network-wide invariants in real time.
+\newblock In {\em Proceedings of the 10th USENIX Symposium on Networked Systems
+  Design and Implementation}, NSDI'13, pages 15--27, Lombard, IL, 2013.
+
+\bibitem{Anteater2011}
+H.~Mai, A.~Khurshid, R.~Agarwal, M.~Caesar, P.~B. Godfrey, and S.~T. King.
+\newblock Debugging the data plane with anteater.
+\newblock In {\em Proc. of ACM SIGCOMM Computer Communication Review},
+  SIGCOMM'11, pages 290--301, New York, NY, USA, 2011. ACM.
+
+\bibitem{S3F}
+D.~M. Nicol, D.~Jin, and Y.~Zheng.
+\newblock {S3F}: The scalable simulation framework revisited.
+\newblock In {\em Proceedings of the Winter Simulation Conference (WSC)}, pages
+  3288--3299, 2011.
+
+\bibitem{xz+05}
+G.~G. Xie, J.~Zhan, D.~A. Maltz, H.~Zhang, A.~Greenberg, G.~Hjalmtysson, and
+  J.~Rexford.
+\newblock On static reachability analysis of {IP} networks.
+\newblock In {\em Proc. of the 24th Annual Joint Conference of the IEEE
+  Computer and Communications Societies (INFOCOM)}, volume~3, pages 2170--2183.
+  IEEE, March 2005.
+
+\end{thebibliography}
