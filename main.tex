@@ -29,7 +29,7 @@
 \usepackage{float}
 
 % *** To balance reference page ***
-\usepackage{flushend}
+\usepackage[keeplastbox]{flushend}
 
 % *** Draw diagrams ***
 \usepackage{tikz}
@@ -260,7 +260,8 @@ The big-switch model is able to speed up the simulation by 4.3 times in average 
 % initial runs of your .tex file to
 % produce the bibliography for the citations in your paper.
 \bibliographystyle{abbrv}
-\bibliography{sigproc}  % sigproc.bib is the name of the Bibliography in this case
+\bibliography{sigproc.bib}  % sigproc.bib is the name of the Bibliography in this case
+
 % You must have a proper ".bib" file
 %  and remember to run:
 % latex bibtex latex latex
@@ -272,4 +273,5 @@ The big-switch model is able to speed up the simulation by 4.3 times in average 
 %\nocite{*}
 %\balancecolumns % GM June 2007
 % That's all folks!
+
 \end{document}

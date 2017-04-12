@@ -29,15 +29,15 @@ Software defined network {OPNET} simulation {SDN}.
 E.~Al-Shaer and S.~Al-Haj.
 \newblock {FlowChecker: Configuration} analysis and verification of federated
   {OpenFlow} infrastructures.
-\newblock In {\em Proc. of the 3rd ACM Workshop on Assurable and Usable
+\newblock In {\em Proceedings of the 3rd ACM Workshop on Assurable and Usable
   Security Configuration (SafeConfig)}, pages 37--44, 2010.
 
 \bibitem{Al-Shaer2009}
 E.~Al-Shaer, W.~Marrero, A.~El-Atawy, and K.~ElBadawi.
 \newblock {Network configuration in a box: Towards} end-to-end verification of
   network reachability and security.
-\newblock In {\em Proc. of the 17th IEEE International Conference on Network
-  Protocols (ICNP)}, pages 123--132, 2009.
+\newblock In {\em Proceedings of the 17th IEEE International Conference on
+  Network Protocols (ICNP)}, pages 123--132, 2009.
 
 \bibitem{Meridian}
 M.~Banikazemi, D.~Olshefski, A.~Shaikh, J.~Tracey, and G.~Wang.
@@ -120,7 +120,7 @@ A.~Khurshid, X.~Zou, W.~Zhou, M.~Caesar, and P.~B. Godfrey.
 \bibitem{Anteater2011}
 H.~Mai, A.~Khurshid, R.~Agarwal, M.~Caesar, P.~B. Godfrey, and S.~T. King.
 \newblock Debugging the data plane with anteater.
-\newblock In {\em Proc. of ACM SIGCOMM Computer Communication Review},
+\newblock In {\em Proceedings of ACM SIGCOMM Computer Communication Review},
   SIGCOMM'11, pages 290--301, New York, NY, USA, 2011. ACM.
 
 \bibitem{S3F}
@@ -133,7 +133,7 @@ D.~M. Nicol, D.~Jin, and Y.~Zheng.
 G.~G. Xie, J.~Zhan, D.~A. Maltz, H.~Zhang, A.~Greenberg, G.~Hjalmtysson, and
   J.~Rexford.
 \newblock On static reachability analysis of {IP} networks.
-\newblock In {\em Proc. of the 24th Annual Joint Conference of the IEEE
+\newblock In {\em Proceedings of the 24th Annual Joint Conference of the IEEE
   Computer and Communications Societies (INFOCOM)}, volume~3, pages 2170--2183.
   IEEE, March 2005.
 

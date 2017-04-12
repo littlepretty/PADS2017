@@ -20,11 +20,10 @@ all:
 	$(PDFLATEX) $(FILE_NAME).tex
 	$(BIBTEX) $(FILE_NAME).aux
 	$(PDFLATEX) $(FILE_NAME).tex
-	$(PDFLATEX) $(FILE_NAME).tex
-	# $(LATEX) $(FILE_NAME).tex
-	# $(LATEX) $(FILE_NAME).tex
-	# $(DVI2PDF) $(FILE_NAME).dvi
-	# $(PS2PDF) $(FILE_NAME).ps
+	#$(LATEX) $(FILE_NAME).tex
+	#$(LATEX) $(FILE_NAME).tex
+	#$(DVI2PDF) $(FILE_NAME).dvi
+	#$(PS2PDF) $(FILE_NAME).ps
 
 view: all
 	$(VIEWER) $(FILE_NAME).pdf
